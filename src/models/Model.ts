@@ -10,13 +10,14 @@ export interface RetrievableModel<T extends Model> {
 }
 
 export default abstract class Model {
-    protected schema: TableSchema;
+    protected schema: TableSchema = null;
 
     protected constructor(private tableName: string, private primaryKey: string, private entryId: any, private service: string, private channel: string) {
-        this.schema = new TableSchema(this);
     }
 
     getSchema(): TableSchema {
+        if (this.schema === null) this.schema = new TableSchema(this);
+
         return this.schema;
     }
 

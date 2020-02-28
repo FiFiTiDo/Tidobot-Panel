@@ -18,14 +18,23 @@ export interface ColumnSettings {
     enum?: string[]
 }
 
+type ColumnProp = {
+    property: string;
+    settings: ColumnSettings
+};
+
 export class TableSchema {
-    private readonly columns: Map<string, {
-        property: string;
-        settings: ColumnSettings
-    }>;
+    private readonly columns: Map<string, ColumnProp>;
 
     constructor(private model: Model) {
         this.columns = new Map();
+
+        let cols = Object.getOwnPropertyDescriptor(model, "columns");
+        if (cols && cols.value) {
+            for (let col of cols.value as ColumnProp[]) {
+                this.addColumn(col.property, col.settings);
+            }
+        }
     }
 
     addColumn(property: string, settings: ColumnSettings) {
