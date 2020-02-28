@@ -1,4 +1,4 @@
-import RowData, {RawRowData} from "./RowData";
+import {RawRowData} from "./RowData";
 import Model from "../models/Model";
 import {DatabaseError} from "./DatabaseErrors";
 import moment, {Moment} from "moment";

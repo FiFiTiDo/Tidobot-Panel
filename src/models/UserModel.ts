@@ -1,5 +1,5 @@
 import Model from "./Model";
-import RowData, {RawRowData} from "../database/RowData";
+import {RawRowData} from "../database/RowData";
 import {Column} from "../decorators/column";
 import {DataTypes} from "../database/Schema";
 import {where} from "../utils/functions";
@@ -17,10 +17,6 @@ export default class UserModel extends Model {
 
     @Column({ datatype: DataTypes.BOOLEAN })
     public ignored: boolean;
-
-    toggleIgnored() {
-        this.ignored = !this.ignored;
-    }
 
     static async get(id: string, service: string): Promise<UserModel|null> {
         return Model.retrieve(UserModel, service + "_users", where().eq("id", id));

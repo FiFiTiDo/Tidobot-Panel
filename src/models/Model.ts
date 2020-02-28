@@ -1,5 +1,5 @@
 import Server from "../Server";
-import RowData, {RawRowData} from "../database/RowData";
+import {RawRowData} from "../database/RowData";
 import {TableSchema} from "../database/Schema";
 import {Where} from "../database/BooleanOperations";
 import {where} from "../utils/functions";
