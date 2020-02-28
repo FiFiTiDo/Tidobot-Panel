@@ -3,8 +3,16 @@ import {RawRowData} from "../database/RowData";
 import {TableSchema} from "../database/Schema";
 import {Where} from "../database/BooleanOperations";
 import {where} from "../utils/functions";
+import UserModel from "./UserModel";
 
-export type RetrievableModel<T extends Model> = new (tableName: string, row: RawRowData) => T;
+export interface RetrievableModel<T extends Model> {
+    new (tableName: string, row: RawRowData): T;
+    first(id: any, service: string): Promise<T|null>;
+    get(id: any, service: string): Promise<T[]>;
+    getAll(service: string): Promise<T[]>;
+    findFirstBy(service: string, where: Where): Promise<T|null>;
+    findBy(service: string, where: Where): Promise<T[]>;
+}
 
 export default abstract class Model {
     protected schema: TableSchema;

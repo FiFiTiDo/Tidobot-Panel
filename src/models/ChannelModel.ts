@@ -1,8 +1,11 @@
 import Model from "./Model";
 import {removeElements, uniqueArray, where} from "../utils/functions";
 import {RawRowData} from "../database/RowData";
-import {Column} from "../decorators/column";
+import {Column, OneToMany} from "../decorators/database";
 import {DataTypes} from "../database/Schema";
+import {Where} from "../database/BooleanOperations";
+import UserModel from "./UserModel";
+import ChatterModel from "./ChatterModel";
 
 export default class ChannelModel extends Model {
     constructor(tableName: string, data: RawRowData) {
@@ -26,15 +29,30 @@ export default class ChannelModel extends Model {
         this.disabled_modules = this.disabled_modules.filter(removeElements(module));
     }
 
-    static async get(id: string, service: string): Promise<ChannelModel|null> {
-        return Model.retrieve(ChannelModel, service + "_channels", where().eq("id", id));
+    @OneToMany(ChatterModel, "id", "channel_id")
+    async chatters(): Promise<ChatterModel[]> { return []; }
+
+    static async first(id: string, service: string): Promise<ChannelModel|null> {
+        return this.findFirstBy(service, where().eq("id", id));
+    }
+
+    static async get(id: string, service: string): Promise<ChannelModel[]> {
+        return this.findBy(service, where().eq("id", id));
     }
 
     static async getAll(service: string): Promise<ChannelModel[]> {
-        return Model.retrieveAll(ChannelModel, service + "_channels");
+        return this.findBy(service);
+    }
+
+    static async findFirstBy(service: string, where?: Where): Promise<ChannelModel|null> {
+        return Model.retrieve(ChannelModel, service + "_channels", where);
+    }
+
+    static async findBy(service: string, where?: Where): Promise<ChannelModel[]> {
+        return Model.retrieveAll(ChannelModel, service + "_channels", where);
     }
 
     static async findByName(name: string, service: string): Promise<ChannelModel|null> {
-        return Model.retrieve(ChannelModel, service + "_channels", where().eq("name", name));
+        return this.findFirstBy(service, where().eq("name", name));
     }
 }
