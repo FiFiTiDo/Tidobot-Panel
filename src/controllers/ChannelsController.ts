@@ -41,7 +41,7 @@ export default class ChannelsController extends Controller {
             next(e);
         }
 
-        if (req.body.disabled_modules) channel.setDisabledModules(Array.isArray(req.body.disabled_modules) ? req.body.disabled_modules : req.body.disabled_modules.split(","));
+        if (req.body.disabled_modules) channel.setDisabledModules(req.body.disabled_modules);
 
         try {
             await channel.save();

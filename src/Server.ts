@@ -51,11 +51,16 @@ export default class Server {
         let port = 3000 || process.env.PORT;
 
         let api_router = Router();
+        api_router.use(express.json());
         let service_router = Router();
         service_router.use("/channels", new ChannelsController().getRouter());
         api_router.use("/:service", service_router);
         Server.app.use("/api", api_router);
 
+        Server.app.use(function (err, req, res, next) {
+            Server.logger.error("Unable to server page due to an error", { cause: err });
+            new HttpStatusView(500, "Internal server error.").render(res);
+        })
         Server.app.use((req, res) => {
            new HttpStatusView(404, "Page not found.").render(res);
         });
