@@ -3,6 +3,7 @@ import {Get, Update} from "../decorators/methods";
 import {NextFunction, Request, Response} from "express";
 import ChannelModel from "../models/ChannelModel";
 import DataView from "../views/DataView";
+import HttpStatusView from "../views/HttpStatusView";
 
 export default class ChannelsController extends Controller {
     @Get("/")
@@ -30,7 +31,24 @@ export default class ChannelsController extends Controller {
     }
 
     @Update("/:name")
-    async update(req: Request, res: Response) {
+    async update(req: Request, res: Response, next: NextFunction) {
         let { name, service } = req.params;
+
+        let channel: ChannelModel|null;
+        try {
+            channel = await ChannelModel.findByName(name, service);
+        } catch (e) {
+            next(e);
+        }
+
+        if (req.body.disabled_modules) channel.setDisabledModules(Array.isArray(req.body.disabled_modules) ? req.body.disabled_modules : req.body.disabled_modules.split(","));
+
+        try {
+            await channel.save();
+        } catch (e) {
+            next(e);
+        }
+
+        new HttpStatusView(200, "Success").render(res);
     }
 }

@@ -5,7 +5,7 @@ import {error_format} from "./utils/functions";
 import {Application, Router} from "express";
 import express from "express";
 import ChannelsController from "./controllers/ChannelsController";
-import HttpErrorView from "./views/HttpErrorView";
+import HttpStatusView from "./views/HttpStatusView";
 
 export default class Server {
     private static database: Database;
@@ -57,7 +57,7 @@ export default class Server {
         Server.app.use("/api", api_router);
 
         Server.app.use((req, res) => {
-           new HttpErrorView(404, "Page not found.").render(res);
+           new HttpStatusView(404, "Page not found.").render(res);
         });
         Server.app.listen(port, () => Server.logger.info(`Now listening on port ${port}.`));
     }
