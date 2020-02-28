@@ -16,7 +16,7 @@ export default class ChannelsController extends Controller {
         } catch (e) {
             next(e);
         }
-        new DataView(channels.map(channel => channel.getData())).render(res);
+        new DataView(channels.map(channel => channel.getSchema().exportRow())).render(res);
     }
 
     @Get("/:name")
@@ -29,7 +29,7 @@ export default class ChannelsController extends Controller {
         } catch (e) {
             next(e);
         }
-        new DataView(channel === null ? null : channel.getData()).render(res);
+        new DataView(channel === null ? null : channel.getSchema().exportRow()).render(res);
     }
 
     @Update("/:name")
@@ -44,7 +44,7 @@ export default class ChannelsController extends Controller {
             next(e);
         }
 
-        if (req.body.disabled_modules) channel.setDisabledModules(req.body.disabled_modules);
+        if (req.body.disabled_modules) channel.disabled_modules = req.body.disabled_modules;
 
         try {
             await channel.save();
