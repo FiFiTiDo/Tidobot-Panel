@@ -1,0 +1,11 @@
+# Project exclude paths
+/dist/
+/node_modules/
+/data/
+/logs/
+/.idea/
+/config/
+Tidobot.iml
+package-lock.json
+yarn.lock
+.env
