@@ -3,26 +3,29 @@ import {RawRowData} from "../database/RowData";
 import {TableSchema} from "../database/Schema";
 import {Where} from "../database/BooleanOperations";
 import {where} from "../utils/functions";
-import UserModel from "./UserModel";
 
 export interface RetrievableModel<T extends Model> {
-    new (tableName: string, row: RawRowData): T;
-    first(id: any, service: string): Promise<T|null>;
-    get(id: any, service: string): Promise<T[]>;
-    getAll(service: string): Promise<T[]>;
-    findFirstBy(service: string, where: Where): Promise<T|null>;
-    findBy(service: string, where: Where): Promise<T[]>;
+    new (tableName: string, row: RawRowData, service: string, channel: string): T;
+    getTableName(service?: string, channel?: string): string;
 }
 
 export default abstract class Model {
     protected schema: TableSchema;
 
-    protected constructor(private tableName: string, private primaryKey: string, private entryId: any) {
+    protected constructor(private tableName: string, private primaryKey: string, private entryId: any, private service: string, private channel: string) {
         this.schema = new TableSchema(this);
     }
 
     getSchema(): TableSchema {
         return this.schema;
+    }
+
+    getService(): string {
+        return this.service;
+    }
+
+    getChannel(): string {
+        return this.channel;
     }
 
     async save(): Promise<void> {
@@ -59,11 +62,12 @@ export default abstract class Model {
         });
     }
 
-    static async retrieve<T extends Model>(model_const: RetrievableModel<T>, tableName: string, where: Where): Promise<T> {
-        return this.retrieveAll<T>(model_const, tableName, where).then(models => models.length < 1 ? null : models[0]);
+    static async retrieve<T extends Model>(model_const: RetrievableModel<T>, service: string, channel: string, where: Where): Promise<T> {
+        return this.retrieveAll<T>(model_const, service, channel, where).then(models => models.length < 1 ? null : models[0]);
     }
 
-    static async retrieveAll<T extends Model>(model_const: RetrievableModel<T>, tableName: string, where_clause?: Where): Promise<T[]> {
+    static async retrieveAll<T extends Model>(model_const: RetrievableModel<T>, service: string, channel: string, where_clause?: Where): Promise<T[]> {
+        let tableName = model_const.getTableName(service, channel);
         if (!where_clause) where();
         return new Promise((resolve, reject) => {
             Server.getDatabase().all(`SELECT * FROM ${tableName}` + where_clause.toString(), where_clause.getPreparedValues(),(err, rows) => {
@@ -71,7 +75,7 @@ export default abstract class Model {
                     reject(err);
                 else {
                     resolve(rows.map(row => {
-                        let model = new model_const(tableName, row);
+                        let model = new model_const(tableName, row, service, channel);
                         model.schema.importRow(row);
                         return model;
                     }));

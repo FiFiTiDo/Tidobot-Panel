@@ -3,13 +3,11 @@ import {removeElements, uniqueArray, where} from "../utils/functions";
 import {RawRowData} from "../database/RowData";
 import {Column, OneToMany} from "../decorators/database";
 import {DataTypes} from "../database/Schema";
-import {Where} from "../database/BooleanOperations";
-import UserModel from "./UserModel";
 import ChatterModel from "./ChatterModel";
 
 export default class ChannelModel extends Model {
-    constructor(tableName: string, data: RawRowData) {
-        super(tableName, "id", data.id);
+    constructor(tableName: string, data: RawRowData, service?: string, channel?: string) {
+        super(tableName, "id", data.id, service, channel);
     }
 
     @Column({ datatype: DataTypes.STRING, unique: true })
@@ -32,27 +30,23 @@ export default class ChannelModel extends Model {
     @OneToMany(ChatterModel, "id", "channel_id")
     async chatters(): Promise<ChatterModel[]> { return []; }
 
-    static async first(id: string, service: string): Promise<ChannelModel|null> {
-        return this.findFirstBy(service, where().eq("id", id));
+    static async first(id: string, service?: string, channel?: string): Promise<ChannelModel|null> {
+        return Model.retrieve(ChannelModel, service, channel, where().eq("id", id));
     }
 
-    static async get(id: string, service: string): Promise<ChannelModel[]> {
-        return this.findBy(service, where().eq("id", id));
+    static async get(id: string, service?: string, channel?: string): Promise<ChannelModel[]> {
+        return Model.retrieveAll(ChannelModel, service, channel, where().eq("id", id));
     }
 
-    static async getAll(service: string): Promise<ChannelModel[]> {
-        return this.findBy(service);
+    static async getAll(service?: string, channel?: string): Promise<ChannelModel[]> {
+        return Model.retrieveAll(ChannelModel, service, channel);
     }
 
-    static async findFirstBy(service: string, where?: Where): Promise<ChannelModel|null> {
-        return Model.retrieve(ChannelModel, service + "_channels", where);
+    static async findByName(name: string, service?: string, channel?: string): Promise<ChannelModel|null> {
+        return Model.retrieve(ChannelModel, service, channel, where().eq("name", name));
     }
 
-    static async findBy(service: string, where?: Where): Promise<ChannelModel[]> {
-        return Model.retrieveAll(ChannelModel, service + "_channels", where);
-    }
-
-    static async findByName(name: string, service: string): Promise<ChannelModel|null> {
-        return this.findFirstBy(service, where().eq("name", name));
+    static getTableName(service?: string, channel?: string): string {
+        return service + "_channels";
     }
 }

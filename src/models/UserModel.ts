@@ -3,11 +3,10 @@ import {RawRowData} from "../database/RowData";
 import {Column} from "../decorators/database";
 import {DataTypes} from "../database/Schema";
 import {where} from "../utils/functions";
-import {Where} from "../database/BooleanOperations";
 
 export default class UserModel extends Model {
-    constructor(tableName: string, data: RawRowData) {
-        super(tableName, "id", data.id);
+    constructor(tableName: string, data: RawRowData, service?: string, channel?: string) {
+        super(tableName, "id", data.id, service, channel);
     }
 
     @Column({ datatype: DataTypes.STRING, unique: true })
@@ -19,27 +18,23 @@ export default class UserModel extends Model {
     @Column({ datatype: DataTypes.BOOLEAN })
     public ignored: boolean;
 
-    static async first(id: string, service: string): Promise<UserModel|null> {
-        return this.findFirstBy(service, where().eq("id", id));
+    static async first(id: string, service?: string, channel?: string): Promise<UserModel|null> {
+        return Model.retrieve(UserModel, service, channel, where().eq("id", id));
     }
 
-    static async get(id: string, service: string): Promise<UserModel[]> {
-        return this.findBy(service, where().eq("id", id));
+    static async get(id: string, service?: string, channel?: string): Promise<UserModel[]> {
+        return Model.retrieveAll(UserModel, service, channel, where().eq("id", id));
     }
 
-    static async getAll(service: string): Promise<UserModel[]> {
-        return this.findBy(service);
+    static async getAll(service?: string, channel?: string): Promise<UserModel[]> {
+        return Model.retrieveAll(UserModel, service, channel);
     }
 
-    static async findFirstBy(service: string, where?: Where): Promise<UserModel|null> {
-        return Model.retrieve(UserModel, service + "_users", where);
+    static async findByName(name: string, service?: string, channel?: string): Promise<UserModel|null> {
+        return Model.retrieve(UserModel, service, channel, where().eq("name", name));
     }
 
-    static async findBy(service: string, where?: Where): Promise<UserModel[]> {
-        return Model.retrieveAll(UserModel, service + "_users", where);
-    }
-
-    static async findByName(name: string, service: string): Promise<UserModel|null> {
-        return this.findFirstBy(service, where().eq("name", name));
+    static getTableName(service?: string, channel?: string) {
+        return service + "_users";
     }
 }

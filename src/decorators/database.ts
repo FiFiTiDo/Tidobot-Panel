@@ -13,8 +13,8 @@ export function Column(settings: ColumnSettings) {
 export function OneToOne<T extends Model>(model: RetrievableModel<T>, localKey: string, foreignKey: string) {
     return function (obj: Object, key: string|symbol, descriptor: TypedPropertyDescriptor<() => Promise<T|null>>): any {
         if (!obj.hasOwnProperty(localKey)) throw new Error("Model does not have the specified foreignKey.");
-        if (!obj.hasOwnProperty("service")) throw new Error("Model needs the service to retrieve the data.");
-        descriptor.value = () => model.findFirstBy(obj["service"], where().eq(foreignKey, obj[localKey]));
+        if (!(obj instanceof Model)) throw new Error("Model needs the service to retrieve the data.");
+        descriptor.value = () => Model.retrieve(model, obj.getService(), obj.getChannel(), where().eq(foreignKey, obj[localKey]));
         return descriptor;
     }
 }
@@ -22,8 +22,8 @@ export function OneToOne<T extends Model>(model: RetrievableModel<T>, localKey: 
 export function ManyToOne<T extends Model>(model: RetrievableModel<T>, localKey: string, foreignKey: string) {
     return function (obj: Object, key: string|symbol, descriptor: TypedPropertyDescriptor<() => Promise<T|null>>): any {
         if (!obj.hasOwnProperty(localKey)) throw new Error("Model does not have the specified foreignKey.");
-        if (!obj.hasOwnProperty("service")) throw new Error("Model needs the service to retrieve the data.");
-        descriptor.value = () => model.findFirstBy(obj["service"], where().eq(foreignKey, obj[localKey]));
+        if (!(obj instanceof Model)) throw new Error("Model needs the service to retrieve the data.");
+        descriptor.value = () => Model.retrieve(model, obj.getService(), obj.getChannel(), where().eq(foreignKey, obj[localKey]));
         return descriptor;
     }
 }
@@ -31,8 +31,8 @@ export function ManyToOne<T extends Model>(model: RetrievableModel<T>, localKey:
 export function OneToMany<T extends Model>(model: RetrievableModel<T>, localKey: string, foreignKey: string) {
     return function (obj: Object, key: string|symbol, descriptor: TypedPropertyDescriptor<() => Promise<T[]>>): any {
         if (!obj.hasOwnProperty(localKey)) throw new Error("Model does not have the specified foreignKey.");
-        if (!obj.hasOwnProperty("service")) throw new Error("Model needs the service to retrieve the data.");
-        descriptor.value = () => model.findBy(obj["service"], where().eq(foreignKey, obj[localKey]));
+        if (!(obj instanceof Model)) throw new Error("Model needs the service to retrieve the data.");
+        descriptor.value = () => Model.retrieveAll(model, obj.getService(), obj.getChannel(), where().eq(foreignKey, obj[localKey]));
         return descriptor;
     }
 }

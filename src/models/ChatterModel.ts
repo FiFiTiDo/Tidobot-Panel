@@ -1,14 +1,12 @@
-import UserModel from "./UserModel";
 import {Column} from "../decorators/database";
 import {DataTypes} from "../database/Schema";
 import Model from "./Model";
 import {where} from "../utils/functions";
-import {Where} from "../database/BooleanOperations";
 import {RawRowData} from "../database/RowData";
 
 export default class ChatterModel extends Model {
-    constructor(tableName: string, data: RawRowData) {
-        super(tableName, "id", data.id);
+    constructor(tableName: string, data: RawRowData, service?: string, channel?: string) {
+        super(tableName, "id", data.id, service, channel);
     }
 
     @Column({ datatype: DataTypes.STRING, unique: true })
@@ -26,27 +24,23 @@ export default class ChatterModel extends Model {
     @Column({ datatype: DataTypes.BOOLEAN })
     public regular: boolean;
 
-    static async first(id: string, service: string): Promise<ChatterModel|null> {
-        return this.findFirstBy(service, where().eq("id", id));
+    static async first(id: string, service?: string, channel?: string): Promise<ChatterModel|null> {
+        return Model.retrieve(ChatterModel, service, channel, where().eq("id", id));
     }
 
-    static async get(id: string, service: string): Promise<ChatterModel[]> {
-        return this.findBy(service, where().eq("id", id));
+    static async get(id: string, service?: string, channel?: string): Promise<ChatterModel[]> {
+        return Model.retrieveAll(ChatterModel, service, channel, where().eq("id", id));
     }
 
-    static async getAll(service: string): Promise<ChatterModel[]> {
-        return this.findBy(service);
+    static async getAll(service?: string, channel?: string): Promise<ChatterModel[]> {
+        return Model.retrieveAll(ChatterModel, service, channel);
     }
 
-    static async findFirstBy(service: string, where?: Where): Promise<ChatterModel|null> {
-        return Model.retrieve(ChatterModel, service + "_users", where);
+    static async findByName(name: string, service?: string, channel?: string): Promise<ChatterModel|null> {
+        return Model.retrieve(ChatterModel, service, channel, where().eq("name", name));
     }
 
-    static async findBy(service: string, where?: Where): Promise<ChatterModel[]> {
-        return Model.retrieveAll(ChatterModel, service + "_users", where);
-    }
-
-    static async findByName(name: string, service: string): Promise<ChatterModel|null> {
-        return this.findFirstBy(service, where().eq("name", name));
+    static getTableName(service?: string, channel?: string) {
+        return service + "_" + channel + "_users";
     }
 }
