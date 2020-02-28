@@ -1,39 +1,33 @@
-import Model, {RowData} from "./Model";
-import {removeElements, uniqueArray} from "../utils/functions";
+import Model from "./Model";
+import {removeElements, uniqueArray, where} from "../utils/functions";
+import {RawRowData} from "../database/RowData";
+import {Column} from "../decorators/column";
+import {DataTypes} from "../database/Schema";
 
 export default class ChannelModel extends Model {
-    constructor(tableName: string, data: RowData) {
-        super(tableName, data, "id", data.id);
+    constructor(tableName: string, data: RawRowData) {
+        super(tableName, "id", data.id);
     }
 
-    getName(): string {
-        return this.data.name as string;
+    @Column({ datatype: DataTypes.STRING, unique: true })
+    public id: string;
+
+    @Column({ datatype: DataTypes.STRING })
+    public name: string;
+
+    @Column({ datatype: DataTypes.ARRAY })
+    public disabled_modules: string[];
+
+    addDisabledModule(module: string) {
+        this.disabled_modules = this.disabled_modules.concat(module).filter(uniqueArray);
     }
 
-    setName(name: string): this {
-        this.data.name = name;
-        return this;
-    }
-
-    getDisabledModules(): string[] {
-        return (this.data.disabled_modules as string).split(",");
-    }
-
-    addDisabledModule(module: string): this {
-        return this.setDisabledModules(this.getDisabledModules().concat(module).filter(uniqueArray));
-    }
-
-    removeDisabledModule(module: string): this {
-        return this.setDisabledModules(this.getDisabledModules().filter(removeElements(module)));
-    }
-
-    setDisabledModules(disabled_modules: string[]): this {
-        this.data.disabled_modules = disabled_modules.join(",");
-        return this;
+    removeDisabledModule(module: string) {
+        this.disabled_modules = this.disabled_modules.filter(removeElements(module));
     }
 
     static async get(id: string, service: string): Promise<ChannelModel|null> {
-        return Model.retrieve(ChannelModel, service + "_channels", "id", id);
+        return Model.retrieve(ChannelModel, service + "_channels", where().eq("id", id));
     }
 
     static async getAll(service: string): Promise<ChannelModel[]> {
@@ -41,6 +35,6 @@ export default class ChannelModel extends Model {
     }
 
     static async findByName(name: string, service: string): Promise<ChannelModel|null> {
-        return Model.retrieve(ChannelModel, service + "_channels", "name", name);
+        return Model.retrieve(ChannelModel, service + "_channels", where().eq("name", name));
     }
 }

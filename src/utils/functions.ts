@@ -1,6 +1,7 @@
 import * as util from "util";
 import * as winston from "winston";
 import {Request} from "express";
+import {Where} from "../database/BooleanOperations";
 
 export const error_format = winston.format(info => {
     if (info.cause && info.cause instanceof Error) {
@@ -26,4 +27,8 @@ export function removeElements<T>(value: T|T[]) {
 
 export function getService(req: Request): string {
     return Object.getOwnPropertyDescriptor(req, "service").value;
+}
+
+export function where() {
+    return new Where();
 }
