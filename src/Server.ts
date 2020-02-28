@@ -6,6 +6,7 @@ import {Application, Router} from "express";
 import express from "express";
 import ChannelsController from "./controllers/ChannelsController";
 import HttpStatusView from "./views/HttpStatusView";
+require('winston-daily-rotate-file');
 
 export default class Server {
     private static database: Database;
@@ -47,11 +48,13 @@ export default class Server {
         Server.app = express();
     }
 
-    start() {
-        let port = 3000 || process.env.PORT;
-
+    init() {
         let api_router = Router();
         api_router.use(express.json());
+        api_router.param("service", function (req, res, next, value, name) {
+            Object.defineProperty(req, "service", { value });
+            next();
+        });
         let service_router = Router();
         service_router.use("/channels", new ChannelsController().getRouter());
         api_router.use("/:service", service_router);
@@ -60,10 +63,14 @@ export default class Server {
         Server.app.use(function (err, req, res, next) {
             Server.logger.error("Unable to server page due to an error", { cause: err });
             new HttpStatusView(500, "Internal server error.").render(res);
-        })
+        });
         Server.app.use((req, res) => {
            new HttpStatusView(404, "Page not found.").render(res);
         });
+    }
+
+    start() {
+        let port = 3000 || process.env.PORT;
         Server.app.listen(port, () => Server.logger.info(`Now listening on port ${port}.`));
     }
 }

@@ -25,7 +25,7 @@ export function Put(path: string) {
 }
 
 export function Update(path: string) {
-    return route(path, "update");
+    return route(path, "patch");
 }
 
 exports.Delete = function (path: string) {

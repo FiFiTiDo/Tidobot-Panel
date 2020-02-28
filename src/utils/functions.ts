@@ -1,5 +1,6 @@
 import * as util from "util";
 import * as winston from "winston";
+import {Request} from "express";
 
 export const error_format = winston.format(info => {
     if (info.cause && info.cause instanceof Error) {
@@ -21,4 +22,8 @@ export function uniqueArray<T>(value: T, index: number, array: T[]) {
 export function removeElements<T>(value: T|T[]) {
     let values = Array.isArray(value) ? value : [value];
     return (value: T, index: number, array: T[]) => values.indexOf(value) < 0;
+}
+
+export function getService(req: Request): string {
+    return Object.getOwnPropertyDescriptor(req, "service").value;
 }
