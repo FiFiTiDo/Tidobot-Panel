@@ -4,6 +4,7 @@ import {NextFunction, Request, Response} from "express";
 import DataView from "../views/DataView";
 import GroupsModel from "../models/GroupsModel";
 import HttpStatusView from "../views/HttpStatusView";
+import Model from "../models/Model";
 
 export default class GroupsController extends Controller {
     @Get("/")
@@ -36,12 +37,11 @@ export default class GroupsController extends Controller {
         let service = this.getParameter(req, "service");
         let channel = this.getParameter(req, "channel");
         try {
-            let group = new GroupsModel(req.body, service, channel);
-            if (await group.exists()) {
+            let group = await Model.make(GroupsModel, service, channel, req.body);
+            if (group === null) {
                 new HttpStatusView(400, "That group already exists!").render(res);
                 return;
             }
-            await group.save();
             new DataView(group).render(res);
         } catch (e) {
             next(e);

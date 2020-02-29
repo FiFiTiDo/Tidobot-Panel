@@ -1,17 +1,19 @@
 import Server from "../Server";
-import {RawRowData} from "../database/RowData";
-import {TableSchema} from "../database/Schema";
+import {prepareData, RawRowData} from "../database/RowData";
+import {DataTypes, TableSchema} from "../database/Schema";
 import {where, Where} from "../database/BooleanOperations";
 
 export interface RetrievableModel<T extends Model> {
-    new (row: RawRowData, service: string, channel: string): T;
+    new (id: number, service: string, channel: string): T;
     getTableName(service?: string, channel?: string): string;
 }
 
 export default abstract class Model {
     protected schema: TableSchema = null;
 
-    protected constructor(private tableName: string, private primaryKey: string, private entryId: any, private service: string, private channel: string) {
+    protected constructor(private tableName: string, public id: number, private service: string, private channel: string) {
+        this.schema = new TableSchema(this);
+        this.schema.addColumn("id", { datatype: DataTypes.INTEGER, primary: true, increment: true });
     }
 
     getSchema(): TableSchema {
@@ -30,7 +32,7 @@ export default abstract class Model {
 
     async exists(): Promise<boolean> {
         return new Promise((resolve, reject) => {
-            Server.getDatabase().get(`SELECT COUNT(*) as "count" FROM ${this.tableName} WHERE ${this.primaryKey} = ?`, this.entryId,(err, row) => {
+            Server.getDatabase().get(`SELECT COUNT(*) as "count" FROM ${this.tableName} WHERE id = ?`, this.id,(err, row) => {
                 if (err)
                     reject(err);
                 else {
@@ -46,13 +48,8 @@ export default abstract class Model {
 
     async save(): Promise<void> {
         return new Promise((resolve, reject) => {
-            let data = {};
-            for (let [key, value] of Object.entries(this.getSchema().exportRow())) {
-                data["$" + key] = value;
-            }
-
-            let preparedKeys = Object.keys(data).join(", ");
-            Server.getDatabase().run(`INSERT INTO ${this.tableName} VALUES ${preparedKeys} ON CONFLICT REPLACE`, data, err => {
+            let { keys, columns, prepared } = prepareData(this.getSchema().exportRow());
+            Server.getDatabase().run(`INSERT OR REPLACE INTO ${this.tableName}(${columns.join(", ")}) VALUES (${keys.join(", ")})`, prepared, err => {
                 if (err)
                     reject(err);
                 else
@@ -63,7 +60,7 @@ export default abstract class Model {
 
     async delete(): Promise<void> {
         return new Promise((resolve, reject) => {
-            Server.getDatabase().run(`DELETE FROM ${this.tableName} WHERE ${this.primaryKey} = ?`, this.entryId,(err) => {
+            Server.getDatabase().run(`DELETE FROM ${this.tableName} WHERE id = ?`, this.id,(err) => {
                 if (err)
                     reject(err);
                 else
@@ -74,7 +71,7 @@ export default abstract class Model {
 
     async load(): Promise<boolean> {
         return new Promise((resolve, reject) => {
-            Server.getDatabase().get(`SELECT * FROM ${this.tableName} WHERE ${this.primaryKey} = ?`, this.entryId,(err, row) => {
+            Server.getDatabase().get(`SELECT * FROM ${this.tableName} WHERE id = ?`, this.id,(err, row) => {
                 if (err)
                     reject(err);
                 else {
@@ -89,7 +86,7 @@ export default abstract class Model {
         });
     }
 
-    static async retrieve<T extends Model>(model_const: RetrievableModel<T>, service: string, channel: string, where: Where): Promise<T> {
+    static async retrieve<T extends Model>(model_const: RetrievableModel<T>, service: string, channel: string, where: Where): Promise<T|null> {
         return this.retrieveAll<T>(model_const, service, channel, where).then(models => models.length < 1 ? null : models[0]);
     }
 
@@ -106,6 +103,26 @@ export default abstract class Model {
                         model.getSchema().importRow(row);
                         return model;
                     }));
+                }
+            })
+        });
+    }
+
+    static async make<T extends Model>(model_const: RetrievableModel<T>, service: string, channel: string, data: RawRowData): Promise<T|null> {
+        let tableName = model_const.getTableName(service, channel);
+        let { columns, keys, prepared } = prepareData(data);
+        return new Promise((resolve, reject) => {
+            Server.getDatabase().run(`INSERT OR ABORT INTO ${tableName} (${columns.join(", ")}) VALUES (${keys.join(", ")})`, prepared, function (err) {
+                if (err) {
+                    if ((err as any).errno === 19 && err.message.indexOf("UNIQUE") >= 0) {
+                        resolve(null);
+                        return;
+                    }
+
+                    reject(err);
+                } else {
+                    let model = new model_const(this.lastID, service, channel);
+                    model.load().then(() => resolve(model)).catch(reject);
                 }
             })
         });

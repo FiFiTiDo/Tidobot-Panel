@@ -7,12 +7,12 @@ import ChatterModel from "./ChatterModel";
 import {where} from "../database/BooleanOperations";
 
 export default class ChannelModel extends Model {
-    constructor(data: RawRowData, service?: string, channel?: string) {
-        super(ChannelModel.getTableName(service, channel), "id", data.id, service, channel);
+    constructor(id: number, service?: string, channel?: string) {
+        super(ChannelModel.getTableName(service, channel), id, service, channel);
     }
 
     @Column({ datatype: DataTypes.STRING, unique: true })
-    public id: string;
+    public channel_id: string;
 
     @Column({ datatype: DataTypes.STRING })
     public name: string;
@@ -28,16 +28,8 @@ export default class ChannelModel extends Model {
         this.disabled_modules = this.disabled_modules.filter(removeElements(module));
     }
 
-    @OneToMany(ChatterModel, "id", "channel_id")
+    @OneToMany(ChatterModel, "channel_id", "channel_id")
     async chatters(): Promise<ChatterModel[]> { return []; }
-
-    static async first(id: string, service?: string, channel?: string): Promise<ChannelModel|null> {
-        return Model.retrieve(ChannelModel, service, channel, where().eq("id", id));
-    }
-
-    static async get(id: string, service?: string, channel?: string): Promise<ChannelModel[]> {
-        return Model.retrieveAll(ChannelModel, service, channel, where().eq("id", id));
-    }
 
     static async getAll(service?: string, channel?: string): Promise<ChannelModel[]> {
         return Model.retrieveAll(ChannelModel, service, channel);

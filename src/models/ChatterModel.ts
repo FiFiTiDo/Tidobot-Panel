@@ -5,12 +5,12 @@ import {RawRowData} from "../database/RowData";
 import {where} from "../database/BooleanOperations";
 
 export default class ChatterModel extends Model {
-    constructor(data: RawRowData, service?: string, channel?: string) {
-        super(ChatterModel.getTableName(service, channel), "id", data.id, service, channel);
+    constructor(id: number, service?: string, channel?: string) {
+        super(ChatterModel.getTableName(service, channel), id, service, channel);
     }
 
     @Column({ datatype: DataTypes.STRING, unique: true })
-    public id: string;
+    public chatter_id: string;
 
     @Column({ datatype: DataTypes.STRING })
     public name: string;
@@ -23,14 +23,6 @@ export default class ChatterModel extends Model {
 
     @Column({ datatype: DataTypes.BOOLEAN })
     public regular: boolean;
-
-    static async first(id: string, service?: string, channel?: string): Promise<ChatterModel|null> {
-        return Model.retrieve(ChatterModel, service, channel, where().eq("id", id));
-    }
-
-    static async get(id: string, service?: string, channel?: string): Promise<ChatterModel[]> {
-        return Model.retrieveAll(ChatterModel, service, channel, where().eq("id", id));
-    }
 
     static async getAll(service?: string, channel?: string): Promise<ChatterModel[]> {
         return Model.retrieveAll(ChatterModel, service, channel);

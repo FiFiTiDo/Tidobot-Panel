@@ -8,6 +8,7 @@ import ChannelsController from "./controllers/ChannelsController";
 import HttpStatusView from "./views/HttpStatusView";
 import UsersController from "./controllers/UsersController";
 import ChattersController from "./controllers/ChattersController";
+import GroupsController from "./controllers/GroupsController";
 require('winston-daily-rotate-file');
 
 export default class Server {
@@ -61,13 +62,14 @@ export default class Server {
                     channels_router.use("/", channel_router);
                     channel_router.param("channel", putParameter);
                     channel_router.use("/:channel/chatters", new ChattersController().getRouter());
+                    channel_router.use("/:channel/groups", new GroupsController().getRouter());
                 });
                 service_router.use("/users", new UsersController().getRouter());
             });
         });
 
         Server.app.use(function (err, req, res, next) {
-            Server.logger.error("Unable to server page due to an error", { cause: err });
+            Server.logger.error("Unable to serve page due to an error", { cause: err });
             new HttpStatusView(500, "Internal server error.").render(res);
         });
         Server.app.use((req, res) => {
