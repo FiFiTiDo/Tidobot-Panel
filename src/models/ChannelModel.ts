@@ -20,20 +20,8 @@ export default class ChannelModel extends Model {
     @Column({ datatype: DataTypes.ARRAY })
     public disabled_modules: string[];
 
-    addDisabledModule(module: string) {
-        this.disabled_modules = this.disabled_modules.concat(module).filter(uniqueArray);
-    }
-
-    removeDisabledModule(module: string) {
-        this.disabled_modules = this.disabled_modules.filter(removeElements(module));
-    }
-
     @OneToMany(ChatterModel, "channel_id", "channel_id")
     async chatters(): Promise<ChatterModel[]> { return []; }
-
-    static async getAll(service?: string, channel?: string): Promise<ChannelModel[]> {
-        return Model.retrieveAll(ChannelModel, service, channel);
-    }
 
     static async findByName(name: string, service?: string, channel?: string): Promise<ChannelModel|null> {
         return Model.retrieve(ChannelModel, service, channel, where().eq("name", name));

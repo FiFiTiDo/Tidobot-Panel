@@ -18,10 +18,6 @@ export default class UserModel extends Model {
     @Column({ datatype: DataTypes.BOOLEAN })
     public ignore: boolean;
 
-    static async getAll(service?: string, channel?: string): Promise<UserModel[]> {
-        return Model.retrieveAll(UserModel, service, channel);
-    }
-
     static async findByName(name: string, service?: string, channel?: string): Promise<UserModel|null> {
         return Model.retrieve(UserModel, service, channel, where().eq("name", name));
     }

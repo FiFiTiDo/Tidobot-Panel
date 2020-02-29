@@ -12,10 +12,6 @@ export default class GroupsModel extends Model {
     @Column({ datatype: DataTypes.STRING })
     public name: string;
 
-    static async getAll(service?: string, channel?: string): Promise<GroupsModel[]> {
-        return Model.retrieveAll(GroupsModel, service, channel);
-    }
-
     static async findByName(name: string, service?: string, channel?: string): Promise<GroupsModel|null> {
         return Model.retrieve(GroupsModel, service, channel, where().eq("name", name));
     }

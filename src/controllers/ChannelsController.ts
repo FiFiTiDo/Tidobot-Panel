@@ -21,7 +21,6 @@ export default class ChannelsController extends Controller {
     async getOne(req: Request, res: Response, next: NextFunction) {
         let { channel: name } = req.params;
         let service = this.getParameter(req, "service");
-        console.debug(this.getParameter(req, "channel"));
         try {
             let channel = await ChannelModel.findByName(name, service);
             new DataView(channel).render(res);

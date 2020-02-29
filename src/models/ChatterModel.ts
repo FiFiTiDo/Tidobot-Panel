@@ -24,10 +24,6 @@ export default class ChatterModel extends Model {
     @Column({ datatype: DataTypes.BOOLEAN })
     public regular: boolean;
 
-    static async getAll(service?: string, channel?: string): Promise<ChatterModel[]> {
-        return Model.retrieveAll(ChatterModel, service, channel);
-    }
-
     static async findByName(name: string, service?: string, channel?: string): Promise<ChatterModel|null> {
         return Model.retrieve(ChatterModel, service, channel, where().eq("name", name));
     }

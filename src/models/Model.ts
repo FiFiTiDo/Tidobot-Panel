@@ -86,6 +86,14 @@ export default abstract class Model {
         });
     }
 
+    static async get<T extends Model>(id: number, service?: string, channel?: string): Promise<T|null> {
+        return Model.retrieve(this as unknown as RetrievableModel<T>, service, channel, where().eq("id", id));
+    }
+
+    static async getAll<T extends Model>(service?: string, channel?: string): Promise<T[]> {
+        return Model.retrieveAll(this as unknown as RetrievableModel<T>, service, channel);
+    }
+
     static async retrieve<T extends Model>(model_const: RetrievableModel<T>, service: string, channel: string, where: Where): Promise<T|null> {
         return this.retrieveAll<T>(model_const, service, channel, where).then(models => models.length < 1 ? null : models[0]);
     }
@@ -99,7 +107,7 @@ export default abstract class Model {
                     reject(err);
                 else {
                     resolve(rows.map(row => {
-                        let model = new model_const(row, service, channel);
+                        let model = new model_const(row.id, service, channel);
                         model.getSchema().importRow(row);
                         return model;
                     }));
