@@ -5,8 +5,8 @@ import {DataTypes} from "../database/Schema";
 import {where} from "../database/BooleanOperations";
 
 export default class UserModel extends Model {
-    constructor(tableName: string, data: RawRowData, service?: string, channel?: string) {
-        super(tableName, "id", data.id, service, channel);
+    constructor(data: RawRowData, service?: string, channel?: string) {
+        super(UserModel.getTableName(service, channel), "id", data.id, service, channel);
     }
 
     @Column({ datatype: DataTypes.STRING, unique: true })
