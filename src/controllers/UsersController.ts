@@ -34,16 +34,13 @@ export default class UsersController extends Controller {
     async update(req: Request, res: Response, next: NextFunction) {
         let { name } = req.params;
         let service = getService(req);
-        let user: UserModel|null;
         try {
-            user = await UserModel.findByName(name, service);
-        } catch (e) {
-            next(e);
-        }
-
-        if (req.body.ignore) user.ignore = req.body.ignore;
-
-        try {
+            let user = await UserModel.findByName(name, service);
+            if (user === null) {
+                new HttpStatusView(404, "User not found").render(res);
+                return;
+            }
+            if (req.body.ignore) user.ignore = req.body.ignore;
             await user.save();
         } catch (e) {
             next(e);

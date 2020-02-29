@@ -34,16 +34,13 @@ export default class ChannelsController extends Controller {
     async update(req: Request, res: Response, next: NextFunction) {
         let { name } = req.params;
         let service = getService(req);
-        let channel: ChannelModel|null;
         try {
-            channel = await ChannelModel.findByName(name, service);
-        } catch (e) {
-            next(e);
-        }
-
-        if (req.body.disabled_modules) channel.disabled_modules = req.body.disabled_modules;
-
-        try {
+            let channel = await ChannelModel.findByName(name, service);
+            if (channel === null) {
+                new HttpStatusView(404, "Channel not found").render(res);
+                return;
+            }
+            if (req.body.disabled_modules) channel.disabled_modules = req.body.disabled_modules;
             await channel.save();
         } catch (e) {
             next(e);
