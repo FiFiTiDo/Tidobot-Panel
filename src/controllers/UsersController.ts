@@ -43,7 +43,7 @@ export default class UsersController extends Controller {
             next(e);
         }
 
-        if (req.body.ignored) user.ignored = req.body.ignored;
+        if (req.body.ignore) user.ignore = req.body.ignore;
 
         try {
             await user.save();

@@ -43,8 +43,11 @@ export class TableSchema {
 
     importRow(row: RawRowData) {
         for (let columnName of Object.keys(row)) {
-            if (!this.columns.has(columnName))
+            if (!this.columns.has(columnName)) {
+                console.table(row);
+                console.table(this.columns);
                 throw new DatabaseError("Could not parse database rows, column names don't match the schema.");
+            }
             let { property, settings } = this.columns.get(columnName);
             let value = row[settings.name];
             switch (settings.datatype) {

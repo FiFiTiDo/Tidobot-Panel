@@ -16,7 +16,7 @@ export default class UserModel extends Model {
     public name: string;
 
     @Column({ datatype: DataTypes.BOOLEAN })
-    public ignored: boolean;
+    public ignore: boolean;
 
     static async first(id: string, service?: string, channel?: string): Promise<UserModel|null> {
         return Model.retrieve(UserModel, service, channel, where().eq("id", id));
