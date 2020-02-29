@@ -10,26 +10,24 @@ export default class ChannelsController extends Controller {
     @Get("/")
     async getAll(req: Request, res: Response, next: NextFunction) {
         let service = getService(req);
-        let channels: ChannelModel[];
         try {
-            channels = await ChannelModel.getAll(service);
+            let channels = await ChannelModel.getAll(service);
+            new DataView(channels.map(channel => channel.getSchema().exportRow())).render(res);
         } catch (e) {
             next(e);
         }
-        new DataView(channels.map(channel => channel.getSchema().exportRow())).render(res);
     }
 
     @Get("/:name")
     async getOne(req: Request, res: Response, next: NextFunction) {
         let { name } = req.params;
         let service = getService(req);
-        let channel: ChannelModel|null;
         try {
-            channel = await ChannelModel.findByName(name, service);
+            let channel = await ChannelModel.findByName(name, service);
+            new DataView(channel === null ? null : channel.getSchema().exportRow()).render(res);
         } catch (e) {
             next(e);
         }
-        new DataView(channel === null ? null : channel.getSchema().exportRow()).render(res);
     }
 
     @Update("/:name")

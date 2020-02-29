@@ -10,26 +10,24 @@ export default class UsersController extends Controller {
     @Get("/")
     async getAll(req: Request, res: Response, next: NextFunction) {
         let service = getService(req);
-        let users: UserModel[];
         try {
-            users = await UserModel.getAll(service);
+            let users = await UserModel.getAll(service);
+            new DataView(users.map(user => user.getSchema().exportRow())).render(res);
         } catch (e) {
             next(e);
         }
-        new DataView(users.map(user => user.getSchema().exportRow())).render(res);
     }
 
     @Get("/:name")
     async getOne(req: Request, res: Response, next: NextFunction) {
         let { name } = req.params;
         let service = getService(req);
-        let user: UserModel|null;
         try {
-            user = await UserModel.findByName(name, service);
+            let user = await UserModel.findByName(name, service);
+            new DataView(user === null ? null : user.getSchema().exportRow()).render(res);
         } catch (e) {
             next(e);
         }
-        new DataView(user === null ? null : user.getSchema().exportRow()).render(res);
     }
 
     @Update("/:name")
