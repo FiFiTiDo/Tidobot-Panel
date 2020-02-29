@@ -7,7 +7,7 @@ function route(path: string, method: string) {
     return function (obj: Object, key: string|symbol, descriptor: TypedPropertyDescriptor<RequestHandler>): any {
         if (!(obj instanceof Controller)) throw new Error("Cannot use " + method + " descriptor on a method outside of a controller.");
 
-        obj.getRouter()[method](path, descriptor.value);
+        obj.getRouter()[method](path, descriptor.value.bind(obj));
         return descriptor;
     }
 }

@@ -29,18 +29,13 @@ export function getService(req: Request): string {
     return Object.getOwnPropertyDescriptor(req, "service").value;
 }
 
-export function route_namespace(path: string, parent: IRouter, f: (router: Router) => void, params?: string[]) {
+export function putParameter(req, res, next, value, name) {
+    Object.defineProperty(req, name, { value, enumerable: true, configurable: true });
+    next();
+}
+
+export function route_namespace(path: string, parent: IRouter, f: (router: Router) => void) {
     const router = Router();
-
-    if (params) {
-        for (let param of params) {
-            router.param(param, ((req, res, next, value) => {
-                Object.defineProperty(req, "service", { value });
-                next();
-            }))
-        }
-    }
-
     f(router);
     parent.use(path, router);
 }

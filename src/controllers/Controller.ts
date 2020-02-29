@@ -1,4 +1,4 @@
-import {Router} from "express";
+import {Router, Request} from "express";
 
 export default abstract class Controller {
     protected router: Router;
@@ -8,5 +8,10 @@ export default abstract class Controller {
             this.router = Router();
 
         return this.router;
+    }
+
+    protected getParameter(req: Request, param: string) {
+        let prop = Object.getOwnPropertyDescriptor(req, param);
+        return prop && prop.value ? prop.value : null;
     }
 }

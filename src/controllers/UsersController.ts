@@ -1,7 +1,6 @@
 import Controller from "./Controller";
 import {Get, Update} from "../decorators/methods";
 import {NextFunction, Request, Response} from "express";
-import {getService} from "../utils/functions";
 import DataView from "../views/DataView";
 import HttpStatusView from "../views/HttpStatusView";
 import UserModel from "../models/UserModel";
@@ -9,7 +8,7 @@ import UserModel from "../models/UserModel";
 export default class UsersController extends Controller {
     @Get("/")
     async getAll(req: Request, res: Response, next: NextFunction) {
-        let service = getService(req);
+        let service = this.getParameter(req, "service");
         try {
             let users = await UserModel.getAll(service);
             new DataView(users.map(user => user.getSchema().exportRow())).render(res);
@@ -18,10 +17,10 @@ export default class UsersController extends Controller {
         }
     }
 
-    @Get("/:name")
+    @Get("/:user")
     async getOne(req: Request, res: Response, next: NextFunction) {
-        let { name } = req.params;
-        let service = getService(req);
+        let { user: name } = req.params;
+        let service = this.getParameter(req, "service");
         try {
             let user = await UserModel.findByName(name, service);
             new DataView(user === null ? null : user.getSchema().exportRow()).render(res);
@@ -30,10 +29,10 @@ export default class UsersController extends Controller {
         }
     }
 
-    @Update("/:name")
+    @Update("/:user")
     async update(req: Request, res: Response, next: NextFunction) {
-        let { name } = req.params;
-        let service = getService(req);
+        let { user: name } = req.params;
+        let service = this.getParameter(req, "service");
         try {
             let user = await UserModel.findByName(name, service);
             if (user === null) {

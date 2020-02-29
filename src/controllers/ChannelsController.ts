@@ -4,12 +4,11 @@ import {NextFunction, Request, Response} from "express";
 import ChannelModel from "../models/ChannelModel";
 import DataView from "../views/DataView";
 import HttpStatusView from "../views/HttpStatusView";
-import {getService} from "../utils/functions";
 
 export default class ChannelsController extends Controller {
     @Get("/")
     async getAll(req: Request, res: Response, next: NextFunction) {
-        let service = getService(req);
+        let service = this.getParameter(req, "service");
         try {
             let channels = await ChannelModel.getAll(service);
             new DataView(channels.map(channel => channel.getSchema().exportRow())).render(res);
@@ -18,10 +17,11 @@ export default class ChannelsController extends Controller {
         }
     }
 
-    @Get("/:name")
+    @Get("/:channel")
     async getOne(req: Request, res: Response, next: NextFunction) {
-        let { name } = req.params;
-        let service = getService(req);
+        let { channel: name } = req.params;
+        let service = this.getParameter(req, "service");
+        console.debug(this.getParameter(req, "channel"));
         try {
             let channel = await ChannelModel.findByName(name, service);
             new DataView(channel === null ? null : channel.getSchema().exportRow()).render(res);
@@ -30,10 +30,10 @@ export default class ChannelsController extends Controller {
         }
     }
 
-    @Update("/:name")
+    @Update("/:channel")
     async update(req: Request, res: Response, next: NextFunction) {
-        let { name } = req.params;
-        let service = getService(req);
+        let { channel: name } = req.params;
+        let service = this.getParameter(req, "service");
         try {
             let channel = await ChannelModel.findByName(name, service);
             if (channel === null) {
