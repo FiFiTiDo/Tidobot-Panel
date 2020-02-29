@@ -1,6 +1,6 @@
 import * as util from "util";
 import * as winston from "winston";
-import {Request} from "express";
+import {IRouter, Request, Router} from "express";
 import {Where} from "../database/BooleanOperations";
 
 export const error_format = winston.format(info => {
@@ -27,4 +27,20 @@ export function removeElements<T>(value: T|T[]) {
 
 export function getService(req: Request): string {
     return Object.getOwnPropertyDescriptor(req, "service").value;
+}
+
+export function route_namespace(path: string, parent: IRouter, f: (router: Router) => void, params?: string[]) {
+    const router = Router();
+
+    if (params) {
+        for (let param of params) {
+            router.param(param, ((req, res, next, value) => {
+                Object.defineProperty(req, "service", { value });
+                next();
+            }))
+        }
+    }
+
+    f(router);
+    parent.use(path, router);
 }

@@ -1,11 +1,12 @@
 import {Database, OPEN_CREATE, OPEN_READWRITE} from "sqlite3";
 import * as winston from "winston";
 import * as path from "path";
-import {error_format} from "./utils/functions";
+import {error_format, route_namespace} from "./utils/functions";
 import {Application, Router} from "express";
 import express from "express";
 import ChannelsController from "./controllers/ChannelsController";
 import HttpStatusView from "./views/HttpStatusView";
+import UsersController from "./controllers/UsersController";
 require('winston-daily-rotate-file');
 
 export default class Server {
@@ -49,16 +50,13 @@ export default class Server {
     }
 
     init() {
-        let api_router = Router();
-        api_router.use(express.json());
-        api_router.param("service", function (req, res, next, value, name) {
-            Object.defineProperty(req, "service", { value });
-            next();
-        });
-        let service_router = Router();
-        service_router.use("/channels", new ChannelsController().getRouter());
-        api_router.use("/:service", service_router);
-        Server.app.use("/api", api_router);
+        route_namespace("/api", Server.app, api_router => {
+            api_router.use(express.json());
+            route_namespace("/:service", api_router, service_router => {
+                service_router.use("/channels", new ChannelsController().getRouter());
+                service_router.use("/users", new UsersController().getRouter());
+            });
+        }, ["service"]);
 
         Server.app.use(function (err, req, res, next) {
             Server.logger.error("Unable to server page due to an error", { cause: err });

@@ -36,7 +36,6 @@ export default class ChannelsController extends Controller {
     async update(req: Request, res: Response, next: NextFunction) {
         let { name } = req.params;
         let service = getService(req);
-        console.table();
         let channel: ChannelModel|null;
         try {
             channel = await ChannelModel.findByName(name, service);
