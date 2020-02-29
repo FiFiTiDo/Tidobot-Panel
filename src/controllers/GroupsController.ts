@@ -21,7 +21,7 @@ export default class GroupsController extends Controller {
 
     @Get("/:group")
     async getOne(req: Request, res: Response, next: NextFunction) {
-        let { user: name } = req.params;
+        let { group: name } = req.params;
         let service = this.getParameter(req, "service");
         let channel = this.getParameter(req, "channel");
         try {
@@ -50,7 +50,7 @@ export default class GroupsController extends Controller {
 
     @Del("/:group")
     async delete(req: Request, res: Response, next: NextFunction) {
-        let { user: name } = req.params;
+        let { group: name } = req.params;
         let service = this.getParameter(req, "service");
         let channel = this.getParameter(req, "channel");
         try {
