@@ -28,7 +28,3 @@ export function removeElements<T>(value: T|T[]) {
 export function getService(req: Request): string {
     return Object.getOwnPropertyDescriptor(req, "service").value;
 }
-
-export function where() {
-    return new Where();
-}

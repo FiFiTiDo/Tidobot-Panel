@@ -1,8 +1,8 @@
 import {Column} from "../decorators/database";
 import {DataTypes} from "../database/Schema";
 import Model from "./Model";
-import {where} from "../utils/functions";
 import {RawRowData} from "../database/RowData";
+import {where} from "../database/BooleanOperations";
 
 export default class ChatterModel extends Model {
     constructor(tableName: string, data: RawRowData, service?: string, channel?: string) {

@@ -1,8 +1,7 @@
 import Server from "../Server";
 import {RawRowData} from "../database/RowData";
 import {TableSchema} from "../database/Schema";
-import {Where} from "../database/BooleanOperations";
-import {where} from "../utils/functions";
+import {where, Where} from "../database/BooleanOperations";
 
 export interface RetrievableModel<T extends Model> {
     new (tableName: string, row: RawRowData, service: string, channel: string): T;

@@ -1,6 +1,6 @@
 import {ColumnProp, ColumnSettings} from "../database/Schema";
 import Model, {RetrievableModel} from "../models/Model";
-import {where} from "../utils/functions";
+import {where} from "../database/BooleanOperations";
 
 const columns_map: Map<string, ColumnProp[]> = new Map();
 function addColumn(model: Model, propertyKey: string, settings: ColumnSettings): void {

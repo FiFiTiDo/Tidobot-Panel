@@ -154,3 +154,7 @@ export class Where {
         return this.preparedValues;
     }
 }
+
+export function where() {
+    return new Where();
+}

@@ -2,7 +2,7 @@ import Model from "./Model";
 import {RawRowData} from "../database/RowData";
 import {Column} from "../decorators/database";
 import {DataTypes} from "../database/Schema";
-import {where} from "../utils/functions";
+import {where} from "../database/BooleanOperations";
 
 export default class UserModel extends Model {
     constructor(tableName: string, data: RawRowData, service?: string, channel?: string) {

@@ -1,9 +1,10 @@
 import Model from "./Model";
-import {removeElements, uniqueArray, where} from "../utils/functions";
+import {removeElements, uniqueArray} from "../utils/functions";
 import {RawRowData} from "../database/RowData";
 import {Column, OneToMany} from "../decorators/database";
 import {DataTypes} from "../database/Schema";
 import ChatterModel from "./ChatterModel";
+import {where} from "../database/BooleanOperations";
 
 export default class ChannelModel extends Model {
     constructor(tableName: string, data: RawRowData, service?: string, channel?: string) {
