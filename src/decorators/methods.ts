@@ -24,11 +24,11 @@ export function Put(path: string) {
     return route(path, "put");
 }
 
-export function Update(path: string) {
+export function Patch(path: string) {
     return route(path, "patch");
 }
 
-exports.Delete = function (path: string) {
+export function Del(path: string) {
     return route(path, "delete");
 };
 

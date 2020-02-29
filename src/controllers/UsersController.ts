@@ -1,5 +1,5 @@
 import Controller from "./Controller";
-import {Get, Update} from "../decorators/methods";
+import {Get, Patch} from "../decorators/methods";
 import {NextFunction, Request, Response} from "express";
 import DataView from "../views/DataView";
 import HttpStatusView from "../views/HttpStatusView";
@@ -11,7 +11,7 @@ export default class UsersController extends Controller {
         let service = this.getParameter(req, "service");
         try {
             let users = await UserModel.getAll(service);
-            new DataView(users.map(user => user.getSchema().exportRow())).render(res);
+            new DataView(users).render(res);
         } catch (e) {
             next(e);
         }
@@ -23,13 +23,13 @@ export default class UsersController extends Controller {
         let service = this.getParameter(req, "service");
         try {
             let user = await UserModel.findByName(name, service);
-            new DataView(user === null ? null : user.getSchema().exportRow()).render(res);
+            new DataView(user).render(res);
         } catch (e) {
             next(e);
         }
     }
 
-    @Update("/:user")
+    @Patch("/:user")
     async update(req: Request, res: Response, next: NextFunction) {
         let { user: name } = req.params;
         let service = this.getParameter(req, "service");

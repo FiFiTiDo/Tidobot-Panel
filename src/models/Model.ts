@@ -4,7 +4,7 @@ import {TableSchema} from "../database/Schema";
 import {where, Where} from "../database/BooleanOperations";
 
 export interface RetrievableModel<T extends Model> {
-    new (tableName: string, row: RawRowData, service: string, channel: string): T;
+    new (row: RawRowData, service: string, channel: string): T;
     getTableName(service?: string, channel?: string): string;
 }
 
@@ -28,6 +28,22 @@ export default abstract class Model {
         return this.channel;
     }
 
+    async exists(): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            Server.getDatabase().get(`SELECT COUNT(*) as "count" FROM ${this.tableName} WHERE ${this.primaryKey} = ?`, this.entryId,(err, row) => {
+                if (err)
+                    reject(err);
+                else {
+                    if (row === null) {
+                        resolve(false);
+                    } else {
+                        resolve(row.count);
+                    }
+                }
+            })
+        });
+    }
+
     async save(): Promise<void> {
         return new Promise((resolve, reject) => {
             let data = {};
@@ -42,6 +58,17 @@ export default abstract class Model {
                 else
                     resolve();
             })
+        });
+    }
+
+    async delete(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            Server.getDatabase().run(`DELETE FROM ${this.tableName} WHERE ${this.primaryKey} = ?`, this.entryId,(err) => {
+                if (err)
+                    reject(err);
+                else
+                    resolve();
+            });
         });
     }
 
@@ -75,7 +102,7 @@ export default abstract class Model {
                     reject(err);
                 else {
                     resolve(rows.map(row => {
-                        let model = new model_const(tableName, row, service, channel);
+                        let model = new model_const(row, service, channel);
                         model.getSchema().importRow(row);
                         return model;
                     }));

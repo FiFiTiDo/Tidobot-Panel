@@ -5,8 +5,8 @@ import {RawRowData} from "../database/RowData";
 import {where} from "../database/BooleanOperations";
 
 export default class ChatterModel extends Model {
-    constructor(tableName: string, data: RawRowData, service?: string, channel?: string) {
-        super(tableName, "id", data.id, service, channel);
+    constructor(data: RawRowData, service?: string, channel?: string) {
+        super(ChatterModel.getTableName(service, channel), "id", data.id, service, channel);
     }
 
     @Column({ datatype: DataTypes.STRING, unique: true })

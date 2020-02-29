@@ -1,4 +1,4 @@
-import {ColumnProp, ColumnSettings} from "../database/Schema";
+import {ColumnProp, ColumnSettings, DataTypes} from "../database/Schema";
 import Model, {RetrievableModel} from "../models/Model";
 import {where} from "../database/BooleanOperations";
 
@@ -17,6 +17,10 @@ export function Column(settings: ColumnSettings) {
     return function (target: any, propertyKey: string) {
         addColumn(target, propertyKey, settings);
     }
+}
+
+export function Id(target: any, propertyKey: string) {
+    addColumn(target, propertyKey, { datatype: DataTypes.INTEGER, increment: true, primary: true });
 }
 
 function getOrSetProp<T>(obj: Object, key: string, f: () => T) {

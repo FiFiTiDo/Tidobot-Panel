@@ -1,10 +1,19 @@
 import JsonView from "./JsonView";
+import Model from "../models/Model";
+
+type DataInput = Model|Model[]|null;
+
+function normalizeData(data: DataInput) {
+    if (data === null) return { total: 0, data: null };
+    if (!Array.isArray(data)) data = [data];
+    return {
+        total: data.length,
+        data: data.map(model => model.getSchema().exportRow())
+    }
+}
 
 export default class DataView extends JsonView {
-    constructor(data: any) {
-        super({
-            total: Array.isArray(data) ? data.length : 1,
-            data: Array.isArray(data) ? data : [data]
-        });
+    constructor(data: DataInput) {
+        super(normalizeData(data));
     }
 }

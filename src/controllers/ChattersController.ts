@@ -1,6 +1,6 @@
 import Controller from "./Controller";
 import {NextFunction, Request, Response} from "express";
-import {Get, Update} from "../decorators/methods";
+import {Get, Patch} from "../decorators/methods";
 import DataView from "../views/DataView";
 import HttpStatusView from "../views/HttpStatusView";
 import ChatterModel from "../models/ChatterModel";
@@ -31,7 +31,7 @@ export default class ChattersController extends Controller {
         }
     }
 
-    @Update("/:user")
+    @Patch("/:user")
     async update(req: Request, res: Response, next: NextFunction) {
         let { user: name } = req.params;
         let service = this.getParameter(req, "service");

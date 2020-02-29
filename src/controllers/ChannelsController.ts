@@ -1,5 +1,5 @@
 import Controller from "./Controller";
-import {Get, Update} from "../decorators/methods";
+import {Get, Patch} from "../decorators/methods";
 import {NextFunction, Request, Response} from "express";
 import ChannelModel from "../models/ChannelModel";
 import DataView from "../views/DataView";
@@ -11,7 +11,7 @@ export default class ChannelsController extends Controller {
         let service = this.getParameter(req, "service");
         try {
             let channels = await ChannelModel.getAll(service);
-            new DataView(channels.map(channel => channel.getSchema().exportRow())).render(res);
+            new DataView(channels).render(res);
         } catch (e) {
             next(e);
         }
@@ -24,13 +24,13 @@ export default class ChannelsController extends Controller {
         console.debug(this.getParameter(req, "channel"));
         try {
             let channel = await ChannelModel.findByName(name, service);
-            new DataView(channel === null ? null : channel.getSchema().exportRow()).render(res);
+            new DataView(channel).render(res);
         } catch (e) {
             next(e);
         }
     }
 
-    @Update("/:channel")
+    @Patch("/:channel")
     async update(req: Request, res: Response, next: NextFunction) {
         let { channel: name } = req.params;
         let service = this.getParameter(req, "service");
