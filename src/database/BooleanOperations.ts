@@ -86,6 +86,7 @@ export class Where {
 
     constructor(private parent: Where = null) {
         this.data = [];
+        this.preparedValues = {};
     }
 
     addPreparedValue(column: string, value: any): PreparedColumn {
