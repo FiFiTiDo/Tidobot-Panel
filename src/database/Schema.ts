@@ -1,7 +1,8 @@
 import {RawRowData} from "./RowData";
-import Model from "../models/Model";
+import Model, {RetrievableModel} from "../models/Model";
 import {DatabaseError} from "./DatabaseErrors";
 import moment, {Moment} from "moment";
+import {getColumns} from "../decorators/database";
 
 export enum DataTypes {
     STRING, INTEGER, FLOAT, BOOLEAN, DATE, ARRAY, ENUM
@@ -18,7 +19,7 @@ export interface ColumnSettings {
     enum?: string[]
 }
 
-type ColumnProp = {
+export type ColumnProp = {
     property: string;
     settings: ColumnSettings
 };
@@ -29,11 +30,8 @@ export class TableSchema {
     constructor(private model: Model) {
         this.columns = new Map();
 
-        let cols = Object.getOwnPropertyDescriptor(model, "columns");
-        if (cols && cols.value) {
-            for (let col of cols.value as ColumnProp[]) {
-                this.addColumn(col.property, col.settings);
-            }
+        for (let col of getColumns(model) as ColumnProp[]) {
+            this.addColumn(col.property, col.settings);
         }
     }
 

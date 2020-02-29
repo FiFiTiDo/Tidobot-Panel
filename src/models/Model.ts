@@ -32,7 +32,7 @@ export default abstract class Model {
     async save(): Promise<void> {
         return new Promise((resolve, reject) => {
             let data = {};
-            for (let [key, value] of Object.entries(this.schema.exportRow())) {
+            for (let [key, value] of Object.entries(this.getSchema().exportRow())) {
                 data["$" + key] = value;
             }
 
@@ -55,7 +55,7 @@ export default abstract class Model {
                     if (row === null) {
                         resolve(false);
                     } else {
-                        this.schema.importRow(row);
+                        this.getSchema().importRow(row);
                         resolve(true);
                     }
                 }
@@ -69,7 +69,7 @@ export default abstract class Model {
 
     static async retrieveAll<T extends Model>(model_const: RetrievableModel<T>, service: string, channel: string, where_clause?: Where): Promise<T[]> {
         let tableName = model_const.getTableName(service, channel);
-        if (!where_clause) where();
+        if (!where_clause) where_clause = where();
         return new Promise((resolve, reject) => {
             Server.getDatabase().all(`SELECT * FROM ${tableName}` + where_clause.toString(), where_clause.getPreparedValues(),(err, rows) => {
                 if (err)
@@ -77,7 +77,7 @@ export default abstract class Model {
                 else {
                     resolve(rows.map(row => {
                         let model = new model_const(tableName, row, service, channel);
-                        model.schema.importRow(row);
+                        model.getSchema().importRow(row);
                         return model;
                     }));
                 }
