@@ -12,7 +12,7 @@ export default class ChattersController extends Controller {
         let channel = this.getParameter(req, "channel");
         try {
             let chatters = await ChatterModel.getAll(service, channel);
-            new DataView(chatters.map(chatter => chatter.getSchema().exportRow())).render(res);
+            new DataView(chatters).render(res);
         } catch (e) {
             next(e);
         }
@@ -25,7 +25,7 @@ export default class ChattersController extends Controller {
         let channel = this.getParameter(req, "channel");
         try {
             let chatter = await ChatterModel.findByName(name, service, channel);
-            new DataView(chatter === null ? null : chatter.getSchema().exportRow()).render(res);
+            new DataView(chatter).render(res);
         } catch (e) {
             next(e);
         }
