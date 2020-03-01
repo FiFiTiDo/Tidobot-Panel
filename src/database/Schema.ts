@@ -1,5 +1,5 @@
 import {RawRowData} from "./RowData";
-import Model, {RetrievableModel} from "../models/Model";
+import Model from "../models/Model";
 import {DatabaseError} from "./DatabaseErrors";
 import moment, {Moment} from "moment";
 import {getColumns} from "../decorators/database";
@@ -85,6 +85,7 @@ export class TableSchema {
                 case DataTypes.ENUM:
                     if (!settings.enum || settings.enum.indexOf(value) < 0)
                         throw new DatabaseError("Invalid enum type, either wrong value was specified or no enum values were found.");
+                    data[settings.name] = value;
                     break;
                 default:
                     data[settings.name] = value;

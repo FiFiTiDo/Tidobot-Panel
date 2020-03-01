@@ -59,3 +59,11 @@ export function OneToMany<T extends Model>(model_const: RetrievableModel<T>, loc
         return descriptor;
     }
 }
+
+export function ImportModel<T extends Model>(model_const: RetrievableModel<T>) {
+    return function (obj: Object, key: string|symbol, descriptor: TypedPropertyDescriptor<() => Promise<T[]>>): any {
+        if (!(obj instanceof Model)) throw new Error("Model needs the service to retrieve the data.");
+        descriptor.value = async () => Model.retrieveAll(model_const, obj.getService(), obj.getChannel());
+        return descriptor;
+    }
+}
