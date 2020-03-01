@@ -31,6 +31,6 @@ export default class CommandModel extends Model {
     public updated_at: Moment;
 
     static getTableName(service?: string, channel?: string): string {
-        return service + "_" + channel + "_groups";
+        return service + "_" + channel + "_commands";
     }
 }
