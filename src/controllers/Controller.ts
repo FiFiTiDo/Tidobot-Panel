@@ -10,7 +10,7 @@ export default abstract class Controller {
         return this.router;
     }
 
-    protected getParameter(req: Request, param: string) {
+    getParameter(req: Request, param: string) {
         let prop = Object.getOwnPropertyDescriptor(req, param);
         return prop && prop.value ? prop.value : null;
     }
