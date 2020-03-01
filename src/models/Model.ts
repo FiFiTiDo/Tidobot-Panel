@@ -2,6 +2,7 @@ import Server from "../Server";
 import {prepareData, RawRowData} from "../database/RowData";
 import {DataTypes, TableSchema} from "../database/Schema";
 import {where, Where} from "../database/BooleanOperations";
+import moment from "moment";
 
 export interface RetrievableModel<T extends Model> {
     new (id: number, service: string, channel: string): T;
@@ -84,6 +85,27 @@ export default abstract class Model {
                 }
             })
         });
+    }
+
+    async update(obj: { [key: string]: any }): Promise<boolean> {
+        let updated = false;
+        for (let [key, value] of Object.entries(obj)) {
+            if (this.hasOwnProperty(key)) {
+                this[key] = value;
+                updated = true;
+            }
+        }
+
+        if (updated) {
+            if (this.hasOwnProperty("updated_at")) {
+                this["updated_at"] = moment();
+            }
+
+            await this.save();
+            return true;
+        }
+
+        return false;
     }
 
     static async get<T extends Model>(id: number, service?: string, channel?: string): Promise<T|null> {
