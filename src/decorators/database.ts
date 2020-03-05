@@ -23,7 +23,7 @@ type TableNameFormatter = (service: string, channel: string, optional_param?: st
 const tableName_map: Map<string, TableNameFormatter> = new Map();
 export function Table(tableNameFormatter: TableNameFormatter) {
     return function (target: any) {
-        tableName_map.set(target.constructor.name, tableNameFormatter);
+        tableName_map.set(target.name, tableNameFormatter);
     }
 }
 

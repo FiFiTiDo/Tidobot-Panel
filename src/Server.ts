@@ -11,6 +11,8 @@ import ChattersController from "./controllers/ChattersController";
 import GroupsController from "./controllers/GroupsController";
 import CommandController from "./controllers/CommandController";
 import SettingsController from "./controllers/SettingsController";
+import PermissionController from "./controllers/PermissionController";
+import ListsController from "./controllers/ListsController";
 require('winston-daily-rotate-file');
 
 export default class Server {
@@ -67,6 +69,8 @@ export default class Server {
                     channel_router.use("/:channel/groups", new GroupsController().getRouter());
                     channel_router.use("/:channel/commands", new CommandController().getRouter());
                     channel_router.use("/:channel/settings", new SettingsController().getRouter());
+                    channel_router.use("/:channel/permissions", new PermissionController().getRouter());
+                    channel_router.use("/:channel/lists", new ListsController().getRouter());
                 });
                 service_router.use("/users", new UsersController().getRouter());
             });

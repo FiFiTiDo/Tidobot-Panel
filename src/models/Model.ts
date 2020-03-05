@@ -6,7 +6,7 @@ import moment from "moment";
 import {getTableName} from "../decorators/database";
 
 export interface ModelConstructor<T extends Model> {
-    new (id: number, service: string, channel: string): T;
+    new (id: number, service: string, channel: string, optional_param?: string): T;
 }
 
 export default abstract class Model {
