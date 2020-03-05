@@ -13,6 +13,7 @@ import CommandController from "./controllers/CommandController";
 import SettingsController from "./controllers/SettingsController";
 import PermissionController from "./controllers/PermissionController";
 import ListsController from "./controllers/ListsController";
+import NewsController from "./controllers/NewsController";
 require('winston-daily-rotate-file');
 
 export default class Server {
@@ -71,6 +72,7 @@ export default class Server {
                     channel_router.use("/:channel/settings", new SettingsController().getRouter());
                     channel_router.use("/:channel/permissions", new PermissionController().getRouter());
                     channel_router.use("/:channel/lists", new ListsController().getRouter());
+                    channel_router.use("/:channel/news", new NewsController().getRouter());
                 });
                 service_router.use("/users", new UsersController().getRouter());
             });
