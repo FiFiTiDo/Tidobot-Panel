@@ -1,12 +1,13 @@
 import Model from "./Model";
 import {where} from "../database/BooleanOperations";
 import {Moment} from "moment";
-import {Column} from "../decorators/database";
+import {Column, Table} from "../decorators/database";
 import {DataTypes} from "../database/Schema";
 
+@Table((service, channel) => `${service}_${channel}_commands`)
 export default class CommandModel extends Model {
     constructor(id: number, service?: string, channel?: string) {
-        super(CommandModel.getTableName(service, channel), id, service, channel);
+        super(CommandModel, id, service, channel);
     }
 
     @Column({ datatype: DataTypes.STRING })
@@ -29,8 +30,4 @@ export default class CommandModel extends Model {
 
     @Column({ datatype: DataTypes.DATE })
     public updated_at: Moment;
-
-    static getTableName(service?: string, channel?: string): string {
-        return service + "_" + channel + "_commands";
-    }
 }

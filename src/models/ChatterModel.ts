@@ -1,12 +1,13 @@
-import {Column} from "../decorators/database";
+import {Column, Table} from "../decorators/database";
 import {DataTypes} from "../database/Schema";
 import Model from "./Model";
 import {RawRowData} from "../database/RowData";
 import {where} from "../database/BooleanOperations";
 
+@Table((service, channel) => `${service}_${channel}_chatters`)
 export default class ChatterModel extends Model {
     constructor(id: number, service?: string, channel?: string) {
-        super(ChatterModel.getTableName(service, channel), id, service, channel);
+        super(ChatterModel, id, service, channel);
     }
 
     @Column({ datatype: DataTypes.STRING, unique: true })
@@ -23,12 +24,4 @@ export default class ChatterModel extends Model {
 
     @Column({ datatype: DataTypes.BOOLEAN })
     public regular: boolean;
-
-    static async findByName(name: string, service?: string, channel?: string): Promise<ChatterModel|null> {
-        return Model.retrieve(ChatterModel, service, channel, where().eq("name", name));
-    }
-
-    static getTableName(service?: string, channel?: string) {
-        return service + "_" + channel + "_users";
-    }
 }

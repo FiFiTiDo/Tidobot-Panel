@@ -1,11 +1,11 @@
 import Model from "./Model";
-import {Column} from "../decorators/database";
+import {Column, Table} from "../decorators/database";
 import {DataTypes} from "../database/Schema";
-import {where} from "../database/BooleanOperations";
 
+@Table((service, channel) => `${service}_${channel}_settings`)
 export default class SettingsModel extends Model {
     constructor(id: number, service?: string, channel?: string) {
-        super(SettingsModel.getTableName(service, channel), id, service, channel);
+        super(SettingsModel, id, service, channel);
     }
 
     @Column({ datatype: DataTypes.STRING, unique: true })
@@ -19,12 +19,4 @@ export default class SettingsModel extends Model {
 
     @Column({ name: "default_value", datatype: DataTypes.STRING, null: true })
     public defaultValue: string;
-
-    static async findByKey(key: string, service: string, channel: string) {
-        return Model.retrieve(SettingsModel, service, channel, where().eq("key", key));
-    }
-
-    static getTableName(service: string, channel: string) {
-        return `${service}_${channel}_settings`;
-    }
 }

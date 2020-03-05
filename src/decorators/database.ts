@@ -1,5 +1,5 @@
 import {ColumnProp, ColumnSettings, DataTypes} from "../database/Schema";
-import Model, {RetrievableModel} from "../models/Model";
+import Model, {ModelConstructor} from "../models/Model";
 import {where} from "../database/BooleanOperations";
 
 const columns_map: Map<string, ColumnProp[]> = new Map();
@@ -19,6 +19,20 @@ export function Column(settings: ColumnSettings) {
     }
 }
 
+type TableNameFormatter = (service: string, channel: string) => string;
+const tableName_map: Map<string, TableNameFormatter> = new Map();
+export function Table(tableNameFormatter: TableNameFormatter) {
+    return function (target: any) {
+        tableName_map.set(target.constructor.name, tableNameFormatter);
+    }
+}
+
+export function getTableName(model_const: ModelConstructor<any>, service: string, channel: string) {
+    const f = tableName_map.get(model_const.name);
+    if (f === null) return null;
+    return f(service, channel);
+}
+
 export function Id(target: any, propertyKey: string) {
     addColumn(target, propertyKey, { datatype: DataTypes.INTEGER, increment: true, primary: true });
 }
@@ -30,7 +44,7 @@ function getOrSetProp<T>(obj: Object, key: string, f: () => T) {
     return Object.getOwnPropertyDescriptor(this, varKey).value;
 }
 
-export function OneToOne<T extends Model>(model_const: RetrievableModel<T>, localKey: string, foreignKey: string) {
+export function OneToOne<T extends Model>(model_const: ModelConstructor<T>, localKey: string, foreignKey: string) {
     return function (obj: Object, key: string|symbol, descriptor: TypedPropertyDescriptor<() => Promise<T|null>>): any {
         if (!(obj instanceof Model)) throw new Error("Model needs the service to retrieve the data.");
         descriptor.value = function () {
@@ -40,7 +54,7 @@ export function OneToOne<T extends Model>(model_const: RetrievableModel<T>, loca
     }
 }
 
-export function ManyToOne<T extends Model>(model_const: RetrievableModel<T>, localKey: string, foreignKey: string) {
+export function ManyToOne<T extends Model>(model_const: ModelConstructor<T>, localKey: string, foreignKey: string) {
     return function (obj: Object, key: string|symbol, descriptor: TypedPropertyDescriptor<() => Promise<T|null>>): any {
         if (!(obj instanceof Model)) throw new Error("Model needs the service to retrieve the data.");
         descriptor.value = function () {
@@ -50,7 +64,7 @@ export function ManyToOne<T extends Model>(model_const: RetrievableModel<T>, loc
     }
 }
 
-export function OneToMany<T extends Model>(model_const: RetrievableModel<T>, localKey: string, foreignKey: string) {
+export function OneToMany<T extends Model>(model_const: ModelConstructor<T>, localKey: string, foreignKey: string) {
     return function (obj: Object, key: string|symbol, descriptor: TypedPropertyDescriptor<() => Promise<T[]>>): any {
         if (!(obj instanceof Model)) throw new Error("Model needs the service to retrieve the data.");
         descriptor.value = function () {
@@ -60,7 +74,7 @@ export function OneToMany<T extends Model>(model_const: RetrievableModel<T>, loc
     }
 }
 
-export function ImportModel<T extends Model>(model_const: RetrievableModel<T>) {
+export function ImportModel<T extends Model>(model_const: ModelConstructor<T>) {
     return function (obj: Object, key: string|symbol, descriptor: TypedPropertyDescriptor<() => Promise<T[]>>): any {
         if (!(obj instanceof Model)) throw new Error("Model needs the service to retrieve the data.");
         descriptor.value = async () => Model.retrieveAll(model_const, obj.getService(), obj.getChannel());

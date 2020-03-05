@@ -1,6 +1,6 @@
 import Controller from "../controllers/Controller";
 import {NextFunction, Request, Response} from "express";
-import Model, {RetrievableModel} from "../models/Model";
+import Model, {ModelConstructor} from "../models/Model";
 import DataView from "../views/DataView";
 import {where} from "../database/BooleanOperations";
 import HttpStatusView from "../views/HttpStatusView";
@@ -38,7 +38,7 @@ export function Del(path: string) {
 
 type StringToAnyConverter = (s: string) => any;
 type ModelMethods = "getOne" | "getAll" | "update" | "delete" | "create";
-export function ModelRoutes<T extends Model>(model_const: RetrievableModel<T>, name: string, disabled: ModelMethods[] = [], column = "id", converter: StringToAnyConverter = s => parseInt(s)) {
+export function ModelRoutes<T extends Model>(model_const: ModelConstructor<T>, name: string, disabled: ModelMethods[] = [], column = "id", converter: StringToAnyConverter = s => parseInt(s)) {
     return function (obj: any) {
         const isDisabled = (type: ModelMethods) => disabled.indexOf(type) >= 0;
         let original = obj;
