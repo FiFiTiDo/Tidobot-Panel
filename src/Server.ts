@@ -14,6 +14,8 @@ import SettingsController from "./controllers/SettingsController";
 import PermissionController from "./controllers/PermissionController";
 import ListsController from "./controllers/ListsController";
 import NewsController from "./controllers/NewsController";
+import CountersController from "./controllers/CountersController";
+import AllRoutes from "./routes"
 require('winston-daily-rotate-file');
 
 export default class Server {
@@ -57,27 +59,7 @@ export default class Server {
     }
 
     init() {
-        route_namespace("/api", Server.app, api_router => {
-            api_router.use(express.json());
-            api_router.param("service", putParameter);
-            route_namespace("/:service", api_router, service_router => {
-                route_namespace("/channels", service_router, channels_router => {
-                    let channel_router = new ChannelsController().getRouter();
-
-                    channels_router.use("/", channel_router);
-                    channel_router.param("channel", putParameter);
-                    channel_router.use("/:channel/chatters", new ChattersController().getRouter());
-                    channel_router.use("/:channel/groups", new GroupsController().getRouter());
-                    channel_router.use("/:channel/commands", new CommandController().getRouter());
-                    channel_router.use("/:channel/settings", new SettingsController().getRouter());
-                    channel_router.use("/:channel/permissions", new PermissionController().getRouter());
-                    channel_router.use("/:channel/lists", new ListsController().getRouter());
-                    channel_router.use("/:channel/news", new NewsController().getRouter());
-                });
-                service_router.use("/users", new UsersController().getRouter());
-            });
-        });
-
+        AllRoutes(Server.app);
         Server.app.use(function (err, req, res, next) {
             Server.logger.error("Unable to serve page due to an error", { cause: err });
             new HttpStatusView(500, "Internal server error.").render(res);
