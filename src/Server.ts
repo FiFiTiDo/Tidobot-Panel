@@ -1,20 +1,10 @@
 import {Database, OPEN_CREATE, OPEN_READWRITE} from "sqlite3";
 import * as winston from "winston";
 import * as path from "path";
-import {error_format, putParameter, route_namespace} from "./utils/functions";
-import {Application, Router} from "express";
+import {error_format} from "./utils/functions";
+import {Application} from "express";
 import express from "express";
-import ChannelsController from "./controllers/ChannelsController";
 import HttpStatusView from "./views/HttpStatusView";
-import UsersController from "./controllers/UsersController";
-import ChattersController from "./controllers/ChattersController";
-import GroupsController from "./controllers/GroupsController";
-import CommandController from "./controllers/CommandController";
-import SettingsController from "./controllers/SettingsController";
-import PermissionController from "./controllers/PermissionController";
-import ListsController from "./controllers/ListsController";
-import NewsController from "./controllers/NewsController";
-import CountersController from "./controllers/CountersController";
 import AllRoutes from "./routes"
 require('winston-daily-rotate-file');
 

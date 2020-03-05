@@ -38,7 +38,7 @@ export function Del(path: string) {
 
 type StringToAnyConverter = (s: string) => any;
 type ModelMethods = "getOne" | "getAll" | "update" | "delete" | "create";
-export function ModelRoutes<T extends Model>(model_const: ModelConstructor<T>, name: string, disabled: ModelMethods[] = [], column = "id", converter: StringToAnyConverter = s => parseInt(s)) {
+export function ModelRoutes<T extends Model>(model_const: ModelConstructor<T>, name: string, disabled: ModelMethods[] = [], column = "id", converter: StringToAnyConverter = s => parseInt(s), optional_param_key?: string) {
     return function (obj: any) {
         const isDisabled = (type: ModelMethods) => disabled.indexOf(type) >= 0;
         let original = obj;
@@ -48,8 +48,9 @@ export function ModelRoutes<T extends Model>(model_const: ModelConstructor<T>, n
                     this.getRouter().get("/", async (req, res, next) => {
                         let service = this.getParameter(req, "service");
                         let channel = this.getParameter(req, "channel");
+                        let optional_param = optional_param_key ? this.getParameter(req, optional_param_key) : undefined;
                         try {
-                            let models = await Model.retrieveAll<T>(model_const, service, channel);
+                            let models = await Model.retrieveAll<T>(model_const, service, channel, where(), optional_param);
                             new DataView(models).render(res);
                         } catch (e) {
                             next(e);
@@ -61,8 +62,9 @@ export function ModelRoutes<T extends Model>(model_const: ModelConstructor<T>, n
                         let { id } = req.params;
                         let service = this.getParameter(req, "service");
                         let channel = this.getParameter(req, "channel");
+                        let optional_param = optional_param_key ? this.getParameter(req, optional_param_key) : undefined;
                         try {
-                            let model = await Model.retrieve<T>(model_const, service, channel, where().eq(column, converter(id)));
+                            let model = await Model.retrieve<T>(model_const, service, channel, where().eq(column, converter(id)), optional_param);
                             new DataView(model).render(res);
                         } catch (e) {
                             next(e);
@@ -74,8 +76,9 @@ export function ModelRoutes<T extends Model>(model_const: ModelConstructor<T>, n
                         let { id } = req.params;
                         let service = this.getParameter(req, "service");
                         let channel = this.getParameter(req, "channel");
+                        let optional_param = optional_param_key ? this.getParameter(req, optional_param_key) : undefined;
                         try {
-                            let model = await Model.retrieve<T>(model_const, service, channel, where().eq(column, converter(id)));
+                            let model = await Model.retrieve<T>(model_const, service, channel, where().eq(column, converter(id)), optional_param);
                             if (model === null) {
                                 new HttpStatusView(404, name + " not found").render(res);
                                 return;
@@ -93,8 +96,9 @@ export function ModelRoutes<T extends Model>(model_const: ModelConstructor<T>, n
                         let { id } = req.params;
                         let service = this.getParameter(req, "service");
                         let channel = this.getParameter(req, "channel");
+                        let optional_param = optional_param_key ? this.getParameter(req, optional_param_key) : undefined;
                         try {
-                            let model = await Model.retrieve<T>(model_const, service, channel, where().eq(column, converter(id)));
+                            let model = await Model.retrieve<T>(model_const, service, channel, where().eq(column, converter(id)), optional_param);
                             if (model === null) {
                                 new HttpStatusView(404, name + " not found").render(res);
                                 return;
@@ -110,8 +114,9 @@ export function ModelRoutes<T extends Model>(model_const: ModelConstructor<T>, n
                     this.getRouter().put("/", async (req, res, next) => {
                         let service = this.getParameter(req, "service");
                         let channel = this.getParameter(req, "channel");
+                        let optional_param = optional_param_key ? this.getParameter(req, optional_param_key) : undefined;
                         try {
-                            let command = await Model.make(model_const, service, channel, req.body);
+                            let command = await Model.make(model_const, service, channel, req.body, optional_param);
                             new DataView(command).render(res);
                         } catch (e) {
                             next(e);
