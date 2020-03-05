@@ -19,7 +19,7 @@ export function Column(settings: ColumnSettings) {
     }
 }
 
-type TableNameFormatter = (service: string, channel: string) => string;
+type TableNameFormatter = (service: string, channel: string, optional_param?: string) => string;
 const tableName_map: Map<string, TableNameFormatter> = new Map();
 export function Table(tableNameFormatter: TableNameFormatter) {
     return function (target: any) {
@@ -27,10 +27,10 @@ export function Table(tableNameFormatter: TableNameFormatter) {
     }
 }
 
-export function getTableName(model_const: ModelConstructor<any>, service: string, channel: string) {
+export function getTableName(model_const: ModelConstructor<any>, service: string, channel: string, optional_param?: string) {
     const f = tableName_map.get(model_const.name);
     if (f === null) return null;
-    return f(service, channel);
+    return f(service, channel, optional_param);
 }
 
 export function Id(target: any, propertyKey: string) {

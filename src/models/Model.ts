@@ -13,8 +13,8 @@ export default abstract class Model {
     private readonly tableName: string;
     protected schema: TableSchema = null;
 
-    protected constructor(private model_const: ModelConstructor<any>, public id: number, private service: string, private channel: string) {
-        this.tableName = getTableName(model_const, service, channel);
+    protected constructor(private model_const: ModelConstructor<any>, public id: number, private service: string, private channel: string, private optional_param?: string) {
+        this.tableName = getTableName(model_const, service, channel, optional_param);
         if (this.tableName === null) throw new Error("Model must use the @Table decorator to add the table name formatter.");
         this.schema = new TableSchema(this);
         this.schema.addColumn("id", { datatype: DataTypes.INTEGER, primary: true, increment: true });
@@ -111,20 +111,20 @@ export default abstract class Model {
         return false;
     }
 
-    static async get<T extends Model>(id: number, service?: string, channel?: string): Promise<T|null> {
-        return Model.retrieve(this as unknown as ModelConstructor<T>, service, channel, where().eq("id", id));
+    static async get<T extends Model>(id: number, service?: string, channel?: string, optional_param?: string): Promise<T|null> {
+        return Model.retrieve(this as unknown as ModelConstructor<T>, service, channel, where().eq("id", id), optional_param);
     }
 
-    static async getAll<T extends Model>(service?: string, channel?: string): Promise<T[]> {
-        return Model.retrieveAll(this as unknown as ModelConstructor<T>, service, channel);
+    static async getAll<T extends Model>(service?: string, channel?: string, optional_param?: string): Promise<T[]> {
+        return Model.retrieveAll(this as unknown as ModelConstructor<T>, service, channel, undefined, optional_param);
     }
 
-    static async retrieve<T extends Model>(model_const: ModelConstructor<T>, service: string, channel: string, where: Where): Promise<T|null> {
-        return this.retrieveAll<T>(model_const, service, channel, where).then(models => models.length < 1 ? null : models[0]);
+    static async retrieve<T extends Model>(model_const: ModelConstructor<T>, service: string, channel: string, where: Where, optional_param?: string): Promise<T|null> {
+        return this.retrieveAll<T>(model_const, service, channel, where, optional_param).then(models => models.length < 1 ? null : models[0]);
     }
 
-    static async retrieveAll<T extends Model>(model_const: ModelConstructor<T>, service: string, channel: string, where_clause?: Where): Promise<T[]> {
-        let tableName = getTableName(model_const, service, channel);
+    static async retrieveAll<T extends Model>(model_const: ModelConstructor<T>, service: string, channel: string, where_clause?: Where, optional_param?: string): Promise<T[]> {
+        let tableName = getTableName(model_const, service, channel, optional_param);
         if (!where_clause) where_clause = where();
         return new Promise((resolve, reject) => {
             Server.getDatabase().all(`SELECT * FROM ${tableName}` + where_clause.toString(), where_clause.getPreparedValues(),(err, rows) => {
@@ -141,8 +141,8 @@ export default abstract class Model {
         });
     }
 
-    static async make<T extends Model>(model_const: ModelConstructor<T>, service: string, channel: string, data: RawRowData): Promise<T|null> {
-        let tableName = getTableName(model_const, service, channel);
+    static async make<T extends Model>(model_const: ModelConstructor<T>, service: string, channel: string, data: RawRowData, optional_param?: string): Promise<T|null> {
+        let tableName = getTableName(model_const, service, channel, optional_param);
         let { columns, keys, prepared } = prepareData(data);
         return new Promise((resolve, reject) => {
             Server.getDatabase().run(`INSERT OR ABORT INTO ${tableName} (${columns.join(", ")}) VALUES (${keys.join(", ")})`, prepared, function (err) {
