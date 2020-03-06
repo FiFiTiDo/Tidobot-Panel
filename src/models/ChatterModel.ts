@@ -11,7 +11,7 @@ export default class ChatterModel extends Model {
     }
 
     @Column({ datatype: DataTypes.STRING, unique: true })
-    public chatter_id: string;
+    public user_id: string;
 
     @Column({ datatype: DataTypes.STRING })
     public name: string;

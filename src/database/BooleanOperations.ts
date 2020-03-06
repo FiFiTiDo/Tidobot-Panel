@@ -11,6 +11,20 @@ abstract class BooleanOperation {
     abstract getPreparedData(): PreparedData;
 }
 
+class RawSql extends BooleanOperation {
+    constructor(private readonly sql: string) {
+        super();
+    }
+
+    toString(): string {
+        return this.sql;
+    }
+
+    getPreparedData(): PreparedColumn[] {
+        return [];
+    }
+}
+
 class BinaryOperation extends BooleanOperation {
     constructor(private readonly sep: string, private readonly data: BooleanOperation[]) {
         super();
@@ -129,6 +143,11 @@ export class Where {
 
     notIn(column: string, possible: any[]): this {
         this.add(new NotInExpression(column, possible));
+        return this;
+    }
+
+    raw(sql: string): this {
+        this.add(new RawSql(sql));
         return this;
     }
 

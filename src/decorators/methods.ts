@@ -1,9 +1,9 @@
 import Controller from "../controllers/Controller";
 import {NextFunction, Request, Response} from "express";
 import Model, {ModelConstructor} from "../models/Model";
-import DataView from "../views/DataView";
 import {where} from "../database/BooleanOperations";
 import HttpStatusView from "../views/HttpStatusView";
+import JsonView from "../views/JsonView";
 
 export type RequestHandler = (req: Request, res: Response, next?: NextFunction) => void;
 
@@ -51,7 +51,7 @@ export function ModelRoutes<T extends Model>(model_const: ModelConstructor<T>, n
                         let optional_param = optional_param_key ? this.getParameter(req, optional_param_key) : undefined;
                         try {
                             let models = await Model.retrieveAll<T>(model_const, service, channel, where(), optional_param);
-                            new DataView(models).render(res);
+                            (await JsonView.fromData(models)).render(res);
                         } catch (e) {
                             next(e);
                         }
@@ -65,7 +65,7 @@ export function ModelRoutes<T extends Model>(model_const: ModelConstructor<T>, n
                         let optional_param = optional_param_key ? this.getParameter(req, optional_param_key) : undefined;
                         try {
                             let model = await Model.retrieve<T>(model_const, service, channel, where().eq(column, converter(id)), optional_param);
-                            new DataView(model).render(res);
+                            (await JsonView.fromData(model)).render(res);
                         } catch (e) {
                             next(e);
                         }
@@ -117,7 +117,7 @@ export function ModelRoutes<T extends Model>(model_const: ModelConstructor<T>, n
                         let optional_param = optional_param_key ? this.getParameter(req, optional_param_key) : undefined;
                         try {
                             let command = await Model.make(model_const, service, channel, req.body, optional_param);
-                            new DataView(command).render(res);
+                            (await JsonView.fromData(command)).render(res);
                         } catch (e) {
                             next(e);
                         }

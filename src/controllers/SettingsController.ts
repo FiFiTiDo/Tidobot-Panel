@@ -1,8 +1,8 @@
 import Controller from "./Controller";
 import {Get, ModelRoutes} from "../decorators/methods";
 import {NextFunction, Request, Response} from "express";
-import DataView from "../views/DataView";
 import SettingsModel from "../models/SettingsModel";
+import JsonView from "../views/JsonView";
 
 @ModelRoutes(SettingsModel, "Setting", [], "key", s => s)
 export default class SettingsController extends Controller {
@@ -20,7 +20,7 @@ export default class SettingsController extends Controller {
             }
             await Promise.all(ops);
 
-            new DataView(settings).render(res);
+            (await JsonView.fromData(settings)).render(res);
         } catch (e) {
             next(e);
         }

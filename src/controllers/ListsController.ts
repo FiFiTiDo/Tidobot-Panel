@@ -1,10 +1,10 @@
 import Controller from "./Controller";
 import {NextFunction, Request, Response} from "express";
-import DataView from "../views/DataView";
 import ListModel from "../models/ListModel";
 import {Del, Get, Patch, Put} from "../decorators/methods";
 import ListsModel from "../models/ListsModel";
 import HttpStatusView from "../views/HttpStatusView";
+import JsonView from "../views/JsonView";
 
 export default class ListsController extends Controller {
     @Get("/")
@@ -13,7 +13,7 @@ export default class ListsController extends Controller {
         let channel = this.getParameter(req, "channel");
         try {
             let lists = await ListsModel.getAll(service, channel);
-            new DataView(lists).render(res);
+            (await JsonView.fromData(lists)).render(res);
         } catch (e) {
             next(e);
         }
@@ -25,7 +25,7 @@ export default class ListsController extends Controller {
         let channel = this.getParameter(req, "channel");
         try {
             let lists = await ListsModel.getAll(service, channel);
-            new DataView(lists).render(res);
+            (await JsonView.fromData(lists)).render(res);
         } catch (e) {
             next(e);
         }
@@ -53,11 +53,11 @@ export default class ListsController extends Controller {
         try {
             let list = await ListsModel.findByName(name, service, channel);
             let items = await ListModel.getAll(service, channel, name);
-            new DataView({
+            (await JsonView.fromData({
                 id: list.id,
                 name: list.name,
                 items: items.map(model => model.getSchema().exportRow())
-            }).render(res);
+            })).render(res);
         } catch (e) {
             next(e);
         }
@@ -115,7 +115,7 @@ export default class ListsController extends Controller {
         try {
             let list = await ListsModel.findByName(name, service, channel);
             let item = await list.getRandomItem();
-            new DataView(item).render(res);
+            (await JsonView.fromData(item)).render(res);
         } catch (e) {
             next(e);
         }
@@ -129,7 +129,7 @@ export default class ListsController extends Controller {
         try {
             let list = await ListsModel.findByName(name, service, channel);
             let item = await list.getItem(parseInt(id));
-            new DataView(item).render(res);
+            (await JsonView.fromData(item)).render(res);
         } catch (e) {
             next(e);
         }

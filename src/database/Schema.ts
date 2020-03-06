@@ -2,7 +2,7 @@ import {RawRowData} from "./RowData";
 import Model from "../models/Model";
 import {DatabaseError} from "./DatabaseErrors";
 import moment, {Moment} from "moment";
-import {getColumns} from "../decorators/database";
+import {getColumns, getRelationships} from "../decorators/database";
 
 export enum DataTypes {
     STRING, INTEGER, FLOAT, BOOLEAN, DATE, ARRAY, ENUM
@@ -92,5 +92,20 @@ export class TableSchema {
             }
         }
         return data;
+    }
+
+    async export() {
+        let relationship_data = {};
+        for (let relationship of getRelationships(this.model.constructor.name)) {
+            let models = await this.model[relationship]();
+            if (Array.isArray(models)) {
+                relationship_data[relationship] = (models as Model[]).map(model => model.getSchema().exportRow());
+            } else if (models === null) {
+                relationship_data[relationship] = null;
+            } else {
+                relationship_data[relationship] = (models as Model).getSchema().exportRow();
+            }
+        }
+        return Object.assign(this.exportRow(), relationship_data);
     }
 }
