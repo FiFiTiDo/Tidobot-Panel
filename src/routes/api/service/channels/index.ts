@@ -9,6 +9,7 @@ import NewsController from "../../../../controllers/NewsController";
 import CountersController from "../../../../controllers/CountersController";
 import ChattersRoutes from "./chatters"
 import GroupsRoutes from "./groups"
+import FiltersController from "../../../../controllers/FiltersController";
 
 export default function (router: Router) {
     let channel_router = new ChannelsController().getRouter();
@@ -23,4 +24,5 @@ export default function (router: Router) {
     channel_router.use("/:channel/lists", new ListsController().getRouter());
     channel_router.use("/:channel/news", new NewsController().getRouter());
     channel_router.use("/:channel/counters", new CountersController().getRouter());
+    channel_router.use("/:channel/filters", new FiltersController().getRouter());
 }
